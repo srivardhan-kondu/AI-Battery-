@@ -1,0 +1,254 @@
+{
+  "Li-ion": {
+    "full_name": "Lithium-Ion",
+    "typical_voltage": "3.6-3.7V",
+    "common_brands": ["LG", "Samsung", "Panasonic", "Sony", "BYD", "CATL", "Tesla", "Duracell"],
+    "recyclable_elements": {
+      "Cobalt": {
+        "symbol": "Co",
+        "recovery_min": 90,
+        "recovery_max": 98,
+        "unit": "%",
+        "notes": "High-value cathode material; hydrometallurgical recovery"
+      },
+      "Nickel": {
+        "symbol": "Ni",
+        "recovery_min": 85,
+        "recovery_max": 95,
+        "unit": "%",
+        "notes": "Recovered via solvent extraction"
+      },
+      "Lithium": {
+        "symbol": "Li",
+        "recovery_min": 70,
+        "recovery_max": 99,
+        "unit": "%",
+        "notes": "Modern specialized processes exceed 99%; standard: 70–95%"
+      },
+      "Copper": {
+        "symbol": "Cu",
+        "recovery_min": 90,
+        "recovery_max": 98,
+        "unit": "%",
+        "notes": "Current collector foils; efficient mechanical separation"
+      },
+      "Aluminum": {
+        "symbol": "Al",
+        "recovery_min": 90,
+        "recovery_max": 97,
+        "unit": "%",
+        "notes": "Cathode current collector"
+      },
+      "Graphite": {
+        "symbol": "C",
+        "recovery_min": 60,
+        "recovery_max": 85,
+        "unit": "%",
+        "notes": "Anode material; reused in new anode production; variable recovery"
+      },
+      "Manganese": {
+        "symbol": "Mn",
+        "recovery_min": 75,
+        "recovery_max": 92,
+        "unit": "%",
+        "notes": "Present in NMC and LMO chemistries"
+      }
+    }
+  },
+  "LiFePO4": {
+    "full_name": "Lithium Iron Phosphate",
+    "typical_voltage": "3.2V",
+    "common_brands": ["BYD", "CATL", "A123", "Winston"],
+    "recyclable_elements": {
+      "Lithium": {
+        "symbol": "Li",
+        "recovery_min": 75,
+        "recovery_max": 95,
+        "unit": "%",
+        "notes": "Carbonate or hydroxide form; precipitation method"
+      },
+      "Iron": {
+        "symbol": "Fe",
+        "recovery_min": 85,
+        "recovery_max": 97,
+        "unit": "%",
+        "notes": "Iron phosphate re-synthesis possible"
+      },
+      "Phosphate": {
+        "symbol": "PO4",
+        "recovery_min": 80,
+        "recovery_max": 95,
+        "unit": "%",
+        "notes": "Can be re-synthesized into LFP cathode material"
+      },
+      "Copper": {
+        "symbol": "Cu",
+        "recovery_min": 88,
+        "recovery_max": 97,
+        "unit": "%",
+        "notes": "Current collector"
+      },
+      "Aluminum": {
+        "symbol": "Al",
+        "recovery_min": 88,
+        "recovery_max": 96,
+        "unit": "%",
+        "notes": "Casing and current collector"
+      },
+      "Carbon (Graphite)": {
+        "symbol": "C",
+        "recovery_min": 55,
+        "recovery_max": 80,
+        "unit": "%",
+        "notes": "Anode; reusable in new cells"
+      }
+    }
+  },
+  "NiMH": {
+    "full_name": "Nickel-Metal Hydride",
+    "typical_voltage": "1.2V",
+    "common_brands": ["Energizer", "Duracell", "Panasonic", "Varta", "Eneloop"],
+    "recyclable_elements": {
+      "Nickel": {
+        "symbol": "Ni",
+        "recovery_min": 90,
+        "recovery_max": 98,
+        "unit": "%",
+        "notes": "Primary valuable material; directly smelted"
+      },
+      "Cobalt": {
+        "symbol": "Co",
+        "recovery_min": 85,
+        "recovery_max": 95,
+        "unit": "%",
+        "notes": "Minor component in cathode alloy"
+      },
+      "Rare Earth Elements": {
+        "symbol": "RE",
+        "recovery_min": 70,
+        "recovery_max": 90,
+        "unit": "%",
+        "notes": "La, Ce, Nd in anode alloy; specialized hydromet process required"
+      },
+      "Iron": {
+        "symbol": "Fe",
+        "recovery_min": 85,
+        "recovery_max": 95,
+        "unit": "%",
+        "notes": "Steel casing and structural components"
+      },
+      "Zinc": {
+        "symbol": "Zn",
+        "recovery_min": 75,
+        "recovery_max": 90,
+        "unit": "%",
+        "notes": "Present in anode alloy"
+      }
+    }
+  },
+  "NiCd": {
+    "full_name": "Nickel-Cadmium",
+    "typical_voltage": "1.2V",
+    "common_brands": ["Saft", "Panasonic", "Varta", "GP"],
+    "recyclable_elements": {
+      "Cadmium": {
+        "symbol": "Cd",
+        "recovery_min": 90,
+        "recovery_max": 99,
+        "unit": "%",
+        "notes": "TOXIC — mandatory recovery; vacuum thermal distillation"
+      },
+      "Nickel": {
+        "symbol": "Ni",
+        "recovery_min": 90,
+        "recovery_max": 97,
+        "unit": "%",
+        "notes": "High recovery via pyrometallurgy + refining"
+      },
+      "Steel": {
+        "symbol": "Fe",
+        "recovery_min": 88,
+        "recovery_max": 96,
+        "unit": "%",
+        "notes": "Casing and structural; melted down"
+      },
+      "Potassium Hydroxide": {
+        "symbol": "KOH",
+        "recovery_min": 60,
+        "recovery_max": 80,
+        "unit": "%",
+        "notes": "Electrolyte; neutralized during processing"
+      }
+    }
+  },
+  "Lead-Acid": {
+    "full_name": "Lead-Acid",
+    "typical_voltage": "2.0V (12V nominal)",
+    "common_brands": ["Exide", "Amara Raja", "Amaron", "Bosch", "Delkor"],
+    "recyclable_elements": {
+      "Lead": {
+        "symbol": "Pb",
+        "recovery_min": 95,
+        "recovery_max": 99,
+        "unit": "%",
+        "notes": "Most-recycled battery material globally; smelting"
+      },
+      "Sulfuric Acid": {
+        "symbol": "H2SO4",
+        "recovery_min": 85,
+        "recovery_max": 95,
+        "unit": "%",
+        "notes": "Neutralized or converted to sodium sulfate for industrial use"
+      },
+      "Polypropylene": {
+        "symbol": "PP",
+        "recovery_min": 80,
+        "recovery_max": 95,
+        "unit": "%",
+        "notes": "Plastic casing; reprocessed into new battery cases"
+      },
+      "Antimony": {
+        "symbol": "Sb",
+        "recovery_min": 80,
+        "recovery_max": 92,
+        "unit": "%",
+        "notes": "Grid alloy component; recovered during smelting"
+      }
+    }
+  },
+  "Alkaline": {
+    "full_name": "Alkaline (Zinc-Manganese Dioxide)",
+    "typical_voltage": "1.5V",
+    "common_brands": ["Duracell", "Energizer", "Rayovac", "Varta", "Panasonic"],
+    "recyclable_elements": {
+      "Zinc": {
+        "symbol": "Zn",
+        "recovery_min": 75,
+        "recovery_max": 95,
+        "unit": "%",
+        "notes": "Anode; refined for industrial re-use"
+      },
+      "Manganese Dioxide": {
+        "symbol": "MnO2",
+        "recovery_min": 65,
+        "recovery_max": 85,
+        "unit": "%",
+        "notes": "Cathode; reused in pigments, fertilizers, soil amendment"
+      },
+      "Steel": {
+        "symbol": "Fe",
+        "recovery_min": 85,
+        "recovery_max": 95,
+        "unit": "%",
+        "notes": "Outer casing; smelted for scrap"
+      },
+      "Potassium Hydroxide": {
+        "symbol": "KOH",
+        "recovery_min": 50,
+        "recovery_max": 70,
+        "unit": "%",
+        "notes": "Electrolyte; neutralization during processing"
+      }
+    }
+  }
+}
