@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDA Results — Battery Recycling AI System</title>
+    <meta name="description"
+        content="Exploratory data analysis — view recoverable elements and material recovery percentages for each battery type.">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <!-- ── Navbar ──────────────────────────────────────────────────────────── -->
+    <nav class="navbar">
+        <a class="navbar-brand" href="/dashboard">
+            <div class="brand-icon">♻️</div>
+            <span class="brand-name">BatteryAI</span>
+        </a>
+        <ul class="navbar-nav">
+            <li><a href="/dashboard" id="nav-dashboard">Dashboard</a></li>
+            <li><a href="/results" class="active" id="nav-results">EDA Results</a></li>
+            <li><a href="#" id="logout-btn" class="btn btn-sm btn-danger">Logout</a></li>
+        </ul>
+    </nav>
+
+    <div class="page-wrapper">
+        <main class="main-content">
+            <div class="container">
+
+                <!-- ── Header ────────────────────────────────────────────────────── -->
+                <div class="page-header">
+                    <h1>Recyclable Material <span class="gradient-text">Recovery Analysis</span></h1>
+                    <p>FR10 & FR11 — Recoverable elements and percentage ranges per battery chemistry</p>
+                </div>
+
+                <!-- ── Last Scan Info ─────────────────────────────────────────────── -->
+                <div id="scan-info" class="glass-card hidden"
+                    style="padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                    <div style="flex: 1;">
+                        <div
+                            style="font-size:0.75rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:.1em; margin-bottom:4px;">
+                            Last Analyzed Battery</div>
+                        <div id="scan-summary" style="font-weight:600; font-size:1rem;"></div>
+                    </div>
+                    <div class="stat-row" id="scan-chips"></div>
+                </div>
+
+                <!-- ── Chemistry Selector ─────────────────────────────────────────── -->
+                <div class="glass-card" style="padding: 28px; margin-bottom: 32px;">
+                    <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 6px;">Select Battery Chemistry</h2>
+                    <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 20px;">
+                        Choose a battery type to view its complete material recovery breakdown
+                    </p>
+                    <div id="chemistry-grid" class="chemistry-grid">
+                        <div class="loading-state" style="grid-column: 1/-1;">
+                            <div class="spinner"></div>
+                            <p>Loading chemistries…</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Recovery Chart ─────────────────────────────────────────────── -->
+                <div id="recovery-section" class="hidden">
+                    <div class="glass-card chart-container">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+                            <div>
+                                <h2 id="chart-title" style="font-size: 1.3rem; font-weight: 700; margin-bottom: 4px;">
+                                </h2>
+                                <p id="chart-subtitle" class="chart-subtitle"></p>
+                            </div>
+                            <div class="stat-row" id="chart-chips"></div>
+                        </div>
+
+                        <div class="recovery-bars" id="recovery-bars"></div>
+
+                        <!-- Legend -->
+                        <div
+                            style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); display: flex; gap: 24px; flex-wrap: wrap;">
+                            <div
+                                style="display:flex; align-items:center; gap:8px; font-size:0.8rem; color:var(--text-secondary);">
+                                <div
+                                    style="width:12px; height:12px; background: var(--gradient-main); border-radius: 2px;">
+                                </div>
+                                Average Recovery Rate
+                            </div>
+                            <div
+                                style="display:flex; align-items:center; gap:8px; font-size:0.8rem; color:var(--text-secondary);">
+                                <div
+                                    style="width:12px; height:3px; background: rgba(255,255,255,0.2); border-radius:1px;">
+                                </div>
+                                Min–Max Range
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── Raw Data Table ─────────────────────────────────────────── -->
+                    <div class="glass-card" style="padding: 28px; margin-top: 24px;">
+                        <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 20px;">Element Recovery Detail
+                        </h2>
+                        <div style="overflow-x: auto;">
+                            <table id="recovery-table"
+                                style="width:100%; border-collapse: collapse; font-size: 0.875rem;">
+                                <thead>
+                                    <tr style="border-bottom: 1px solid var(--border); text-align: left;">
+                                        <th
+                                            style="padding: 12px 16px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: .05em;">
+                                            Element</th>
+                                        <th
+                                            style="padding: 12px 16px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: .05em;">
+                                            Symbol</th>
+                                        <th
+                                            style="padding: 12px 16px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: .05em;">
+                                            Min %</th>
+                                        <th
+                                            style="padding: 12px 16px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: .05em;">
+                                            Max %</th>
+                                        <th
+                                            style="padding: 12px 16px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: .05em;">
+                                            Avg %</th>
+                                        <th
+                                            style="padding: 12px 16px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: .05em;">
+                                            Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Loading for recovery ────────────────────────────────────── -->
+                <div id="recovery-loading" class="hidden loading-state glass-card" style="padding: 40px;">
+                    <div class="spinner"></div>
+                    <p>Fetching recovery data…</p>
+                </div>
+
+                <!-- ── Empty State ───────────────────────────────────────────────── -->
+                <div id="empty-state" class="hidden glass-card" style="padding: 60px; text-align: center;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">🔋</div>
+                    <h3 style="font-weight: 700; margin-bottom: 8px;">No Results Yet</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 24px;">
+                        Go to the Dashboard, upload a battery image, and run the analysis pipeline first.
+                    </p>
+                    <a href="/dashboard" class="btn btn-primary"
+                        style="width: auto; padding: 12px 28px; text-decoration:none; display:inline-flex;">
+                        <span>← Go to Dashboard</span>
+                    </a>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) window.location.href = '/';
+
+        // ── Logout ────────────────────────────────────────────────────────────
+        document.getElementById('logout-btn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            try { await fetch('/api/logout', { method: 'POST', headers: { Authorization: `Bearer ${token}` } }); } catch (_) { }
+            localStorage.clear();
+            window.location.href = '/';
+        });
+
+        let selectedChemistry = null;
+        let allChemistries = [];
+
+        // ── Load available chemistries ────────────────────────────────────────
+        async function loadChemistries() {
+            try {
+                const res = await fetch('/api/chemistries', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const data = await res.json();
+                allChemistries = data.chemistries || [];
+                renderChemistryGrid(allChemistries);
+            } catch (err) {
+                document.getElementById('chemistry-grid').innerHTML =
+                    `<p style="color:var(--accent-red)">Failed to load chemistries: ${err.message}</p>`;
+            }
+        }
+
+        function renderChemistryGrid(chemistries) {
+            const grid = document.getElementById('chemistry-grid');
+            grid.innerHTML = chemistries.map(c => `
+        <button
+          class="chemistry-btn"
+          id="chem-btn-${c.key.replace(/[^a-z0-9]/gi, '')}"
+          onclick="selectChemistry('${c.key}', '${c.typical_voltage}')"
+        >
+          <div class="chem-name">${c.full_name}</div>
+          <div class="chem-voltage">⚡ ${c.typical_voltage} &nbsp;|&nbsp; ${c.element_count} elements</div>
+        </button>
+      `).join('');
+        }
+
+        async function selectChemistry(chemistry, voltage) {
+            selectedChemistry = chemistry;
+
+            // Highlight selected
+            document.querySelectorAll('.chemistry-btn').forEach(b => b.classList.remove('selected'));
+            const safeId = chemistry.replace(/[^a-z0-9]/gi, '');
+            const btn = document.getElementById(`chem-btn-${safeId}`);
+            if (btn) btn.classList.add('selected');
+
+            document.getElementById('recovery-loading').classList.remove('hidden');
+            document.getElementById('recovery-section').classList.add('hidden');
+
+            try {
+                const res = await fetch('/api/recover', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ chemistry, voltage })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'API error');
+                renderRecovery(data);
+            } catch (err) {
+                alert('Error: ' + err.message);
+            } finally {
+                document.getElementById('recovery-loading').classList.add('hidden');
+            }
+        }
+
+        function renderRecovery(data) {
+            const cd = data.chart_data;
+
+            // Chart title
+            document.getElementById('chart-title').textContent =
+                `${data.full_name} — Recoverable Elements`;
+            document.getElementById('chart-subtitle').textContent =
+                `Typical voltage: ${data.typical_voltage} | ${data.element_count} recoverable elements | Common brands: ${data.common_brands.slice(0, 3).join(', ')}`;
+
+            // Chips
+            const chips = [
+                { label: `${data.element_count} Elements`, color: 'var(--accent-cyan)', bg: 'rgba(0,212,255,0.1)' },
+                { label: data.typical_voltage, color: 'var(--accent-gold)', bg: 'rgba(255,217,61,0.1)' },
+            ];
+            document.getElementById('chart-chips').innerHTML = chips.map(c =>
+                `<div class="stat-chip" style="background:${c.bg}; color:${c.color}; border: 1px solid ${c.color}40;">${c.label}</div>`
+            ).join('');
+
+            // Bars
+            const bars = document.getElementById('recovery-bars');
+            bars.innerHTML = cd.labels.map((label, i) => {
+                const avg = cd.avg_values[i];
+                const color = cd.colors[i];
+                return `
+          <div class="recovery-bar-item">
+            <div class="recovery-bar-header">
+              <div class="element-name">
+                ${label}
+                <span class="element-symbol">${cd.symbols[i]}</span>
+              </div>
+              <div class="recovery-range">${cd.min_values[i]}% – ${cd.max_values[i]}%</div>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill" id="bar-${i}"
+                   style="width: 0%; background: linear-gradient(90deg, ${color}99, ${color});">
+              </div>
+            </div>
+            <div class="element-note">${cd.notes[i]}</div>
+          </div>
+        `;
+            }).join('');
+
+            // Animate bars after render
+            setTimeout(() => {
+                cd.avg_values.forEach((avg, i) => {
+                    const el = document.getElementById(`bar-${i}`);
+                    if (el) el.style.width = avg + '%';
+                });
+            }, 100);
+
+            // Table
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = cd.labels.map((label, i) => `
+        <tr style="border-bottom: 1px solid var(--border);">
+          <td style="padding: 14px 16px; font-weight: 600; color: ${cd.colors[i]};">${label}</td>
+          <td style="padding: 14px 16px; font-family: var(--font-mono); color: var(--text-muted);">${cd.symbols[i]}</td>
+          <td style="padding: 14px 16px; color: var(--text-secondary);">${cd.min_values[i]}%</td>
+          <td style="padding: 14px 16px; color: var(--accent-green);">${cd.max_values[i]}%</td>
+          <td style="padding: 14px 16px; font-weight: 600;">${cd.avg_values[i]}%</td>
+          <td style="padding: 14px 16px; color: var(--text-muted); font-size: 0.8rem; max-width: 280px;">${cd.notes[i]}</td>
+        </tr>
+      `).join('');
+
+            document.getElementById('recovery-section').classList.remove('hidden');
+        }
+
+        // ── Auto-select Chemistry from Last Pipeline Run ───────────────────────
+        function loadLastScan() {
+            const raw = sessionStorage.getItem('lastResult');
+            if (!raw) {
+                document.getElementById('empty-state').classList.remove('hidden');
+                return;
+            }
+            const result = JSON.parse(raw);
+            const s = result.summary || {};
+            const scanInfo = document.getElementById('scan-info');
+            scanInfo.style.display = 'flex';
+            scanInfo.classList.remove('hidden');
+            document.getElementById('scan-summary').textContent =
+                `${s.brand || 'Unknown Brand'} ${s.chemistry || 'Unknown Chemistry'} — ${s.voltage || 'N/A'}`;
+            document.getElementById('scan-chips').innerHTML = `
+        <div class="stat-chip" style="background:rgba(0,255,136,0.1); color:var(--accent-green); border: 1px solid rgba(0,255,136,0.25); font-size:.8rem;">
+          ${s.battery_detected ? '✅ Battery Detected' : '❌ Not Detected'}
+        </div>
+        <div class="stat-chip" style="background:rgba(0,212,255,0.1); color:var(--accent-cyan); border: 1px solid rgba(0,212,255,0.25); font-size:.8rem;">
+          Confidence: ${s.confidence ? (s.confidence * 100).toFixed(1) + '%' : 'N/A'}
+        </div>
+      `;
+
+            // Auto-load chemistry if detected
+            if (s.chemistry && s.chemistry !== 'Unknown') {
+                setTimeout(() => selectChemistry(s.chemistry, s.voltage || 'Unknown'), 300);
+            }
+        }
+
+        // ── Init ──────────────────────────────────────────────────────────────
+        (async () => {
+            await loadChemistries();
+            loadLastScan();
+        })();
+    </script>
+</body>
+
+</html>

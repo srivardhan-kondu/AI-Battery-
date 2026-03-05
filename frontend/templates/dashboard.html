@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — Battery Recycling AI System</title>
+    <meta name="description" content="Upload battery images for AI-powered analysis and material recovery estimation.">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <!-- ── Navbar ──────────────────────────────────────────────────────── -->
+    <nav class="navbar">
+        <a class="navbar-brand" href="/dashboard">
+            <div class="brand-icon">♻️</div>
+            <span class="brand-name">BatteryAI</span>
+        </a>
+        <ul class="navbar-nav">
+            <li><a href="/dashboard" class="active" id="nav-dashboard">Dashboard</a></li>
+            <li><a href="/results" id="nav-results">EDA Results</a></li>
+            <li><a href="#" id="logout-btn" class="btn btn-sm btn-danger">Logout</a></li>
+        </ul>
+    </nav>
+
+    <div class="page-wrapper">
+        <main class="main-content">
+            <div class="container">
+
+                <!-- ── Header ──────────────────────────────────────────────── -->
+                <div class="page-header">
+                    <h1>Battery Analysis <span class="gradient-text">Dashboard</span></h1>
+                    <p id="user-greeting">Upload a battery image to begin the 3-stage AI pipeline analysis</p>
+                </div>
+
+                <!-- ── Upload Zone ─────────────────────────────────────────── -->
+                <div class="glass-card" style="padding: 0; overflow: hidden; margin-bottom: 32px;">
+                    <div id="upload-zone" class="upload-zone" ondragover="handleDragOver(event)"
+                        ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)"
+                        onclick="document.getElementById('file-input').click()">
+                        <span class="upload-icon">🔋</span>
+                        <h3>Drop your battery image here</h3>
+                        <p>or click to browse</p>
+                        <div class="format-badges mt-4">
+                            <span class="badge badge-cyan">JPEG</span>
+                            <span class="badge badge-purple">PNG</span>
+                            <span class="badge badge-green">BMP</span>
+                        </div>
+                    </div>
+                    <input type="file" id="file-input" accept=".jpg,.jpeg,.png,.bmp" class="hidden">
+                </div>
+
+                <!-- ── Preview & Analyze ───────────────────────────────────── -->
+                <div id="preview-section" class="hidden mb-8">
+                    <div class="glass-card"
+                        style="padding: 24px; display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap;">
+                        <img id="preview-img" src="" alt="Selected battery image"
+                            style="width: 200px; height: 200px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+                        <div style="flex: 1; min-width: 200px;">
+                            <div class="label mb-4"
+                                style="font-size:.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.1em;">
+                                Selected File</div>
+                            <div id="file-name" style="font-weight: 600; margin-bottom: 8px;"></div>
+                            <div id="file-meta"
+                                style="font-size: 0.8rem; color: var(--text-secondary); font-family: var(--font-mono);">
+                            </div>
+                            <div style="margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
+                                <button class="btn btn-primary" id="analyze-btn" onclick="runPipeline()"
+                                    style="width: auto; padding: 12px 28px;">
+                                    <span>🔬 Analyze Battery</span>
+                                </button>
+                                <button class="btn btn-secondary btn-sm" onclick="clearUpload()">Clear</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Pipeline Stages ─────────────────────────────────────── -->
+                <div id="pipeline-section" class="hidden mb-8">
+                    <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; color: var(--text-secondary);">
+                        ⚙️ Processing Pipeline
+                    </h2>
+                    <div class="pipeline-stages">
+                        <div class="stage-card" id="stage-1">
+                            <div class="stage-num">Stage 01</div>
+                            <span class="stage-icon">🔍</span>
+                            <h3>Battery Detection</h3>
+                            <p>CNN classifier determines if a battery is present in the image</p>
+                        </div>
+                        <div class="stage-card" id="stage-2">
+                            <div class="stage-num">Stage 02</div>
+                            <span class="stage-icon">📐</span>
+                            <h3>Text Alignment</h3>
+                            <p>OpenCV checks if battery label text is visible and horizontally aligned</p>
+                        </div>
+                        <div class="stage-card" id="stage-3">
+                            <div class="stage-num">Stage 03</div>
+                            <span class="stage-icon">🔤</span>
+                            <h3>OCR Extraction</h3>
+                            <p>Tesseract extracts brand, chemistry type, and voltage rating</p>
+                        </div>
+                    </div>
+
+                    <div id="loading-state" class="hidden loading-state glass-card mt-4" style="padding:32px;">
+                        <div class="spinner"></div>
+                        <p id="loading-text">Running AI pipeline…</p>
+                    </div>
+                </div>
+
+                <!-- ── Quick Results (Summary) ─────────────────────────────── -->
+                <div id="quick-results" class="hidden">
+                    <div id="alert-box" class="hidden mb-8"></div>
+                    <div class="results-grid">
+                        <div class="glass-card info-card">
+                            <div class="label">Battery Detected</div>
+                            <div class="value" id="res-detected">–</div>
+                        </div>
+                        <div class="glass-card info-card">
+                            <div class="label">Brand</div>
+                            <div class="value cyan" id="res-brand">–</div>
+                        </div>
+                        <div class="glass-card info-card">
+                            <div class="label">Chemistry</div>
+                            <div class="value purple" id="res-chemistry">–</div>
+                        </div>
+                        <div class="glass-card info-card">
+                            <div class="label">Voltage</div>
+                            <div class="value" id="res-voltage">–</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        <button class="btn btn-primary" id="view-eda-btn" onclick="goToEDA()"
+                            style="width: auto; padding: 12px 28px;">
+                            <span>📊 View Recovery Analysis</span>
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="clearUpload()">Analyze Another</button>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ── Auth Guard ────────────────────────────────────────────────────────
+        const token = localStorage.getItem('token');
+        if (!token) window.location.href = '/';
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (user.email) {
+            document.getElementById('user-greeting').textContent =
+                `Welcome back, ${user.email} — upload a battery image to begin analysis`;
+        }
+
+        // ── Logout ────────────────────────────────────────────────────────────
+        document.getElementById('logout-btn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                await fetch('/api/logout', {
+                    method: 'POST',
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+            } catch (_) { }
+            localStorage.clear();
+            window.location.href = '/';
+        });
+
+        // ── Drag & Drop ───────────────────────────────────────────────────────
+        function handleDragOver(e) {
+            e.preventDefault();
+            document.getElementById('upload-zone').classList.add('drag-over');
+        }
+        function handleDragLeave(e) {
+            document.getElementById('upload-zone').classList.remove('drag-over');
+        }
+        function handleDrop(e) {
+            e.preventDefault();
+            document.getElementById('upload-zone').classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            if (file) handleFile(file);
+        }
+
+        document.getElementById('file-input').addEventListener('change', (e) => {
+            if (e.target.files[0]) handleFile(e.target.files[0]);
+        });
+
+        function formatBytes(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        let selectedFile = null;
+        function handleFile(file) {
+            const allowed = ['image/jpeg', 'image/png', 'image/bmp'];
+            if (!allowed.includes(file.type) && !file.name.match(/\.(jpg|jpeg|png|bmp)$/i)) {
+                showAlert('error', 'Invalid file type. Please upload JPEG, PNG, or BMP.');
+                return;
+            }
+            selectedFile = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('preview-img').src = e.target.result;
+                document.getElementById('file-name').textContent = file.name;
+                document.getElementById('file-meta').textContent =
+                    `Format: ${file.type || 'image'} | Size: ${formatBytes(file.size)}`;
+            };
+            reader.readAsDataURL(file);
+            document.getElementById('preview-section').classList.remove('hidden');
+            document.getElementById('pipeline-section').classList.remove('hidden');
+            document.getElementById('quick-results').classList.add('hidden');
+        }
+
+        function clearUpload() {
+            selectedFile = null;
+            document.getElementById('file-input').value = '';
+            document.getElementById('preview-section').classList.add('hidden');
+            document.getElementById('pipeline-section').classList.add('hidden');
+            document.getElementById('quick-results').classList.add('hidden');
+        }
+
+        function setStageState(id, state) {
+            const el = document.getElementById(`stage-${id}`);
+            el.className = 'stage-card';
+            if (state) el.classList.add(state);
+        }
+
+        let lastResults = null;
+
+        async function runPipeline() {
+            if (!selectedFile) return;
+
+            // Reset stages
+            ['1', '2', '3'].forEach(s => setStageState(s, null));
+            document.getElementById('quick-results').classList.add('hidden');
+            document.getElementById('loading-state').classList.remove('hidden');
+            document.getElementById('analyze-btn').disabled = true;
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            // Animate stage 1
+            setStageState('1', 'active');
+            document.getElementById('loading-text').textContent = 'Stage 1: Detecting battery…';
+
+            try {
+                const res = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { Authorization: `Bearer ${token}` },
+                    body: formData
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    showAlert('error', data.error || 'Pipeline error');
+                    document.getElementById('loading-state').classList.add('hidden');
+                    document.getElementById('analyze-btn').disabled = false;
+                    return;
+                }
+
+                // Animate through stages
+                setStageState('1', 'done');
+                await sleep(400);
+                setStageState('2', 'active');
+                document.getElementById('loading-text').textContent = 'Stage 2: Checking text alignment…';
+                await sleep(600);
+                setStageState('2', 'done');
+                setStageState('3', 'active');
+                document.getElementById('loading-text').textContent = 'Stage 3: Extracting label info…';
+                await sleep(600);
+                setStageState('3', 'done');
+
+                document.getElementById('loading-state').classList.add('hidden');
+
+                const s = data.summary || {};
+                lastResults = s;
+
+                // Fill result cards
+                const detEl = document.getElementById('res-detected');
+                if (s.battery_detected) {
+                    detEl.textContent = '✅ Yes';
+                    detEl.className = 'value detected';
+                } else {
+                    detEl.textContent = '❌ No';
+                    detEl.className = 'value not-detected';
+                }
+                document.getElementById('res-brand').textContent = s.brand || 'Unknown';
+                document.getElementById('res-chemistry').textContent = s.chemistry || 'Unknown';
+                document.getElementById('res-voltage').textContent = s.voltage || 'Unknown';
+
+                document.getElementById('quick-results').classList.remove('hidden');
+                document.getElementById('analyze-btn').disabled = false;
+
+                // Store for EDA page
+                sessionStorage.setItem('lastResult', JSON.stringify(data));
+
+            } catch (err) {
+                showAlert('error', 'Network error: ' + err.message);
+                document.getElementById('loading-state').classList.add('hidden');
+                document.getElementById('analyze-btn').disabled = false;
+            }
+        }
+
+        function goToEDA() {
+            window.location.href = '/results';
+        }
+
+        function showAlert(type, msg) {
+            const box = document.getElementById('alert-box');
+            box.className = `alert alert-${type}`;
+            box.innerHTML = `<span>${type === 'error' ? '⚠️' : '✅'}</span> ${msg}`;
+            box.classList.remove('hidden');
+        }
+
+        const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+    </script>
+</body>
+
+</html>

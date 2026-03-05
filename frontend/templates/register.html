@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register — Battery Recycling AI System</title>
+    <meta name="description"
+        content="Create your account to access the AI-powered battery recycling analysis platform.">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="auth-page">
+        <div class="auth-container">
+            <div class="auth-logo">
+                <div class="logo-icon">♻️</div>
+                <h1>BatteryAI</h1>
+                <p>Create your account</p>
+            </div>
+
+            <div class="glass-card auth-card">
+                <h2>Get started</h2>
+                <p class="subtitle">Join the battery recycling AI platform</p>
+
+                <div id="alert-box" class="hidden"></div>
+
+                <form id="register-form" novalidate>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" class="form-control" placeholder="you@example.com"
+                            autocomplete="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" class="form-control"
+                            placeholder="Min 8 chars, uppercase, digit" autocomplete="new-password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm">Confirm Password</label>
+                        <input type="password" id="confirm" name="confirm" class="form-control"
+                            placeholder="Re-enter your password" autocomplete="new-password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="submit-btn">
+                        <span>Create Account</span>
+                    </button>
+                </form>
+
+                <p class="auth-footer">
+                    Already have an account?
+                    <a href="/">Sign in</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('register-form');
+        const alertBox = document.getElementById('alert-box');
+        const submitBtn = document.getElementById('submit-btn');
+
+        if (localStorage.getItem('token')) {
+            window.location.href = '/dashboard';
+        }
+
+        function showAlert(type, msg) {
+            alertBox.className = `alert alert-${type}`;
+            alertBox.innerHTML = `<span>${type === 'error' ? '⚠️' : '✅'}</span> ${msg}`;
+            alertBox.classList.remove('hidden');
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirm = document.getElementById('confirm').value;
+
+            if (password !== confirm) {
+                showAlert('error', 'Passwords do not match');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span>Creating account…</span>';
+
+            try {
+                const res = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    showAlert('error', data.error || 'Registration failed');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span>Create Account</span>';
+                    return;
+                }
+
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                showAlert('success', 'Account created! Redirecting…');
+                setTimeout(() => window.location.href = '/dashboard', 800);
+            } catch (err) {
+                showAlert('error', 'Network error. Please try again.');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>Create Account</span>';
+            }
+        });
+    </script>
+</body>
+
+</html>
