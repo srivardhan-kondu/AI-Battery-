@@ -8,6 +8,8 @@
     <meta name="description"
         content="Exploratory data analysis — view recoverable elements and material recovery percentages for each battery type.">
     <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <style>
         .summary-grid {
             display: grid;
@@ -128,6 +130,55 @@
             color: var(--text-muted);
             margin-bottom: 4px;
         }
+        .download-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .download-btn {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 18px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .download-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .download-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 110%;
+            background: var(--bg-primary, #fff);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            min-width: 180px;
+            z-index: 100;
+            overflow: hidden;
+        }
+        .download-menu.show { display: block; }
+        .download-menu button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            background: none;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            text-align: left;
+        }
+        .download-menu button:hover { background: var(--bg-secondary, #f3f4f6); }
+        .download-menu button + button { border-top: 1px solid var(--border); }
     </style>
 </head>
 
@@ -186,11 +237,20 @@
                     <!-- ── Title + Summary Stats (compact) ────────────────────────── -->
                     <div id="recovery-anchor" class="glass-card" style="padding: 20px; margin-bottom: 16px;">
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
-                            <div>
+                            <div style="flex:1;">
                                 <h2 id="chart-title" style="font-size: 1.15rem; font-weight: 700; margin-bottom: 2px;"></h2>
                                 <p id="chart-subtitle" class="chart-subtitle" style="font-size: 0.8rem;"></p>
                             </div>
-                            <div class="stat-row" id="chart-chips"></div>
+                            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                                <div class="stat-row" id="chart-chips"></div>
+                                <div class="download-dropdown" id="dl-dropdown">
+                                    <button class="download-btn" onclick="toggleDownloadMenu(event)">⬇ Download Report</button>
+                                    <div class="download-menu" id="dl-menu">
+                                        <button onclick="downloadPDF()">📄 Download as PDF</button>
+                                        <button onclick="downloadCSV()">📊 Download as CSV</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div id="hazard-banner" style="display:none;"></div>
                         <div id="summary-stats" class="summary-grid"></div>
@@ -289,6 +349,7 @@
 
         let selectedChemistry = null;
         let allChemistries = [];
+        let lastRecoveryData = null;  // store for download
 
         function hazardBadge(level) {
             const map = {
@@ -377,6 +438,7 @@
         }
 
         function renderRecovery(data) {
+            lastRecoveryData = data;  // save for download
             const cd = data.chart_data;
             const summary = data.summary || {};
 
@@ -546,6 +608,166 @@
                     selectChemistry(s.chemistry, s.voltage || 'Unknown');
                 }, 300);
             }
+        }
+
+        /* ── Download helpers ───────────────────────────────────── */
+        function toggleDownloadMenu(e) {
+            e.stopPropagation();
+            document.getElementById('dl-menu').classList.toggle('show');
+        }
+        document.addEventListener('click', () => {
+            document.getElementById('dl-menu')?.classList.remove('show');
+        });
+
+        function downloadCSV() {
+            document.getElementById('dl-menu').classList.remove('show');
+            if (!lastRecoveryData) return alert('No data loaded yet.');
+            const d = lastRecoveryData;
+            const cd = d.chart_data;
+            const rows = [
+                ['Battery Chemistry', d.full_name],
+                ['Voltage', d.typical_voltage],
+                ['Total Elements', d.element_count],
+                ['Overall Avg Recovery (%)', d.summary?.overall_avg_recovery ?? ''],
+                [''],
+                ['Element', 'Symbol', 'Min %', 'Max %', 'Avg %', 'Hazard Level', 'Economic Value', 'Process', 'Notes']
+            ];
+            cd.labels.forEach((label, i) => {
+                rows.push([
+                    label,
+                    cd.symbols[i],
+                    cd.min_values[i],
+                    cd.max_values[i],
+                    cd.avg_values[i],
+                    cd.hazard_levels ? cd.hazard_levels[i] : '',
+                    cd.economic_values ? cd.economic_values[i] : '',
+                    cd.processes ? cd.processes[i] : '',
+                    cd.notes[i]
+                ]);
+            });
+            if (d.environmental_notes) {
+                rows.push(['']);
+                rows.push(['Environmental Notes', d.environmental_notes]);
+            }
+            const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `EDA_Report_${d.full_name.replace(/[^a-zA-Z0-9]/g, '_')}.csv`;
+            a.click();
+            URL.revokeObjectURL(a.href);
+        }
+
+        function downloadPDF() {
+            document.getElementById('dl-menu').classList.remove('show');
+            if (!lastRecoveryData) return alert('No data loaded yet.');
+            const d = lastRecoveryData;
+            const cd = d.chart_data;
+            const summary = d.summary || {};
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+            const pageW = doc.internal.pageSize.getWidth();
+            let y = 18;
+
+            // ── Header ──
+            doc.setFillColor(37, 99, 235);
+            doc.rect(0, 0, pageW, 36, 'F');
+            doc.setTextColor(255);
+            doc.setFontSize(18);
+            doc.setFont(undefined, 'bold');
+            doc.text('Battery EDA Report', 14, 15);
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            doc.text(`${d.full_name}  |  ${d.typical_voltage}  |  ${d.element_count} elements`, 14, 23);
+            doc.setFontSize(8);
+            doc.text('Generated: ' + new Date().toLocaleString(), 14, 30);
+            y = 44;
+
+            // ── Summary stats ──
+            doc.setTextColor(50);
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.text('Summary', 14, y); y += 7;
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'normal');
+            const lines = [
+                `Overall Avg Recovery: ${summary.overall_avg_recovery ?? 'N/A'}%`,
+                `Highest: ${summary.highest_recovery ? summary.highest_recovery.element + ' (' + summary.highest_recovery.avg + '%)' : 'N/A'}`,
+                `Lowest: ${summary.lowest_recovery ? summary.lowest_recovery.element + ' (' + summary.lowest_recovery.avg + '%)' : 'N/A'}`,
+                `High-Value Elements: ${summary.high_value_elements ? summary.high_value_elements.length : 0}`,
+                `Hazardous Elements: ${summary.hazard_elements ? summary.hazard_elements.length : 0}`
+            ];
+            lines.forEach(l => { doc.text(l, 16, y); y += 5; });
+            y += 4;
+
+            // ── Environmental notes ──
+            if (d.environmental_notes) {
+                doc.setFontSize(12); doc.setFont(undefined, 'bold');
+                doc.text('Environmental Notes', 14, y); y += 6;
+                doc.setFontSize(8); doc.setFont(undefined, 'normal');
+                const split = doc.splitTextToSize(d.environmental_notes, pageW - 30);
+                doc.text(split, 16, y); y += split.length * 4 + 4;
+            }
+
+            // ── Recovery table ──
+            doc.setFontSize(12); doc.setFont(undefined, 'bold');
+            doc.text('Element Recovery Data', 14, y); y += 3;
+
+            const tableHead = [['Element', 'Symbol', 'Min %', 'Max %', 'Avg %', 'Hazard', 'Value', 'Process']];
+            const tableBody = cd.labels.map((label, i) => [
+                label,
+                cd.symbols[i],
+                cd.min_values[i] + '%',
+                cd.max_values[i] + '%',
+                cd.avg_values[i] + '%',
+                cd.hazard_levels ? cd.hazard_levels[i] : 'low',
+                cd.economic_values ? cd.economic_values[i] : '',
+                cd.processes ? cd.processes[i] : ''
+            ]);
+
+            doc.autoTable({
+                startY: y,
+                head: tableHead,
+                body: tableBody,
+                margin: { left: 14, right: 14 },
+                styles: { fontSize: 7.5, cellPadding: 2.5 },
+                headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: 'bold' },
+                alternateRowStyles: { fillColor: [245, 247, 250] },
+                columnStyles: {
+                    7: { cellWidth: 42 }
+                }
+            });
+
+            y = doc.lastAutoTable.finalY + 8;
+
+            // ── Description & recycling process ──
+            if (d.description) {
+                if (y > 260) { doc.addPage(); y = 18; }
+                doc.setFontSize(12); doc.setFont(undefined, 'bold');
+                doc.text('About', 14, y); y += 6;
+                doc.setFontSize(8); doc.setFont(undefined, 'normal');
+                const split = doc.splitTextToSize(d.description, pageW - 30);
+                doc.text(split, 16, y); y += split.length * 4 + 4;
+            }
+            if (d.recycling_process) {
+                if (y > 260) { doc.addPage(); y = 18; }
+                doc.setFontSize(12); doc.setFont(undefined, 'bold');
+                doc.text('Recycling Process', 14, y); y += 6;
+                doc.setFontSize(8); doc.setFont(undefined, 'normal');
+                const split = doc.splitTextToSize(d.recycling_process, pageW - 30);
+                doc.text(split, 16, y); y += split.length * 4 + 4;
+            }
+
+            // ── Footer ──
+            const totalPages = doc.internal.getNumberOfPages();
+            for (let p = 1; p <= totalPages; p++) {
+                doc.setPage(p);
+                doc.setFontSize(7); doc.setTextColor(150);
+                doc.text('BatteryAI — EDA Report', 14, doc.internal.pageSize.getHeight() - 8);
+                doc.text(`Page ${p} of ${totalPages}`, pageW - 30, doc.internal.pageSize.getHeight() - 8);
+            }
+
+            doc.save(`EDA_Report_${d.full_name.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
         }
 
         (async () => {
