@@ -227,7 +227,7 @@ battery_recycling_system/
 │   └── train_model.py            # MobileNetV2 fine-tuning script (SLIBR)
 │
 ├── frontend/
-│   ├── static/css/style.css      # Premium dark glassmorphism UI
+│   ├── static/css/style.css      # Professional light UI
 │   └── templates/
 │       ├── login.html            # Login page
 │       ├── register.html         # Registration page
@@ -253,58 +253,162 @@ battery_recycling_system/
 
 ### Prerequisites
 
-| Tool | Version | Install |
-|------|---------|---------|
-| Python | 3.9+ | [python.org](https://python.org) |
-| Tesseract OCR | 4.x+ | `brew install tesseract` (macOS) |
-| Git | Any | [git-scm.com](https://git-scm.com) |
+| Tool | Version | Purpose | Install |
+|------|---------|---------|---------|
+| **Python** | 3.9 – 3.12+ | Runtime | [python.org](https://python.org) |
+| **pip** | 21+ | Package manager | Bundled with Python |
+| **Tesseract OCR** | 4.x+ | Text extraction (Stage 3) | See Step 2 below |
+| **Git** | Any | Version control | [git-scm.com](https://git-scm.com) |
+| **Homebrew** *(macOS only)* | Any | Package manager | [brew.sh](https://brew.sh) |
 
 ### Step 1 — Clone the Repository
 
 ```bash
-git clone <your-repo-url>
-cd battery_recycling_system
+git clone https://github.com/srivardhan-kondu/AI-Battery-.git
+cd AI-Battery-
 ```
 
-### Step 2 — Install Tesseract
+### Step 2 — Install Tesseract OCR
 
+> **⚠️ CRITICAL**: Tesseract is required for OCR (Stage 3). Without it, brand, chemistry, and voltage will return "Unknown".
+
+**macOS (Homebrew):**
 ```bash
-# macOS (Homebrew)
 brew install tesseract
+```
 
-# Ubuntu / Debian
-sudo apt-get install tesseract-ocr
+**Ubuntu / Debian:**
+```bash
+sudo apt-get update
+sudo apt-get install -y tesseract-ocr tesseract-ocr-eng
+```
 
-# Windows
-# Download installer from: https://github.com/UB-Mannheim/tesseract/wiki
+**Windows:**
+1. Download the installer from: https://github.com/UB-Mannheim/tesseract/wiki
+2. Run the installer (note the install path, e.g., `C:\Program Files\Tesseract-OCR`)
+3. Add Tesseract to your system PATH, or set it in `config.py`:
+   ```python
+   TESSERACT_CMD = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+   ```
+
+**Verify installation:**
+```bash
+tesseract --version
+# Expected: tesseract 5.x.x (or 4.x.x)
 ```
 
 ### Step 3 — Create Virtual Environment
 
 ```bash
 python3 -m venv venv
+
+# Activate:
 source venv/bin/activate        # macOS / Linux
-# venv\Scripts\activate         # Windows
+# venv\Scripts\activate         # Windows (CMD)
+# venv\Scripts\Activate.ps1     # Windows (PowerShell)
 ```
 
-### Step 4 — Install Python Dependencies
+### Step 4 — Upgrade pip & Install Python Dependencies
 
 ```bash
+pip install --upgrade pip setuptools wheel
 pip install -r requirements.txt
 ```
 
-> **Note for PyTorch**: If the above doesn't install PyTorch, run:
-> ```bash
-> pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-> ```
+**If PyTorch fails to install** (common on some systems), install it separately:
+```bash
+# CPU-only (recommended for most users):
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 
-### Step 5 — Run the Application
+# macOS Apple Silicon (M1/M2/M3/M4):
+pip install torch torchvision
+```
+
+**If Pillow fails** (Python 3.13+), install the latest version:
+```bash
+pip install Pillow --upgrade
+```
+
+### Step 5 — Verify All Requirements
+
+Run this quick check to ensure everything is installed:
+```bash
+python -c "
+import flask; print(f'Flask:          {flask.__version__}')
+import torch; print(f'PyTorch:        {torch.__version__}')
+import cv2;   print(f'OpenCV:         {cv2.__version__}')
+import PIL;   print(f'Pillow:         {PIL.__version__}')
+import pytesseract; print(f'pytesseract:    OK')
+print('All dependencies installed successfully!')
+"
+```
+
+### Step 6 — Run the Application
 
 ```bash
 python run.py
 ```
 
 Open your browser at: **[http://localhost:5000](http://localhost:5000)**
+
+> **Port conflict?** If port 5000 is in use (common on macOS where AirPlay uses 5000):
+> ```bash
+> # Option 1: Kill the process on port 5000
+> lsof -ti:5000 | xargs kill -9
+> python run.py
+>
+> # Option 2: Run on a different port
+> python -c "
+> from app import create_app
+> app = create_app()
+> app.run(host='0.0.0.0', port=5001, debug=True)
+> "
+> ```
+
+### Step 7 — Register & Test
+
+1. Go to `http://localhost:5000` (or `5001`)
+2. Click **Register** and create an account:
+   - Email: any valid email (e.g., `test@batteryai.com`)
+   - Password: minimum 8 characters, with 1 uppercase, 1 lowercase, 1 digit (e.g., `Test@1234`)
+3. Upload a battery image (JPEG, PNG, or BMP, up to 16 MB)
+4. View the 3-stage analysis results
+5. Click **View Recovery Analysis** to see recyclable elements and recovery percentages
+
+### All Python Requirements
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| `Flask` | 3.0.2 | Web framework |
+| `Flask-SQLAlchemy` | 3.1.1 | Database ORM |
+| `Flask-JWT-Extended` | 4.6.0 | JWT authentication |
+| `Flask-Bcrypt` | 1.0.1 | Password hashing |
+| `Flask-CORS` | 4.0.0 | Cross-origin requests |
+| `Pillow` | 10.2.0+ | Image processing |
+| `opencv-python` | 4.9.0+ | Computer vision (Stages 1 & 2) |
+| `pytesseract` | 0.3.10 | Tesseract OCR binding (Stage 3) |
+| `torch` | 2.2.1+ | Deep learning framework |
+| `torchvision` | 0.17.1+ | Pre-trained models |
+| `ultralytics` | 8.1.28+ | YOLO utilities |
+| `numpy` | 1.26.4+ | Numerical computing |
+| `pandas` | 2.2.1+ | Data handling |
+| `scikit-learn` | 1.4.1+ | ML utilities |
+| `matplotlib` | 3.8.3+ | Plotting (training) |
+| `seaborn` | 0.13.2+ | Statistical visualization |
+| `requests` | 2.31.0+ | HTTP client |
+| `python-dotenv` | 1.0.1 | Environment variables |
+| `Werkzeug` | 3.0.1+ | WSGI utilities |
+| `SQLAlchemy` | 2.0.27+ | SQL toolkit |
+| `tqdm` | 4.66.2+ | Progress bars |
+
+### System Requirements (Non-Python)
+
+| Requirement | Purpose | Install Command |
+|-------------|---------|-----------------|
+| **Tesseract OCR 4+** | OCR text extraction | `brew install tesseract` (macOS) / `apt install tesseract-ocr` (Linux) |
+| **Python 3.9+** | Runtime | [python.org](https://python.org) |
+| **~500 MB disk** | Dependencies + model weights | — |
+| **4 GB RAM** | PyTorch inference | — |
 
 ---
 

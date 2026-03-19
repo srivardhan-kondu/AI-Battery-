@@ -69,12 +69,14 @@ VOLTAGE_PATTERN = re.compile(
 )
 
 
-def _preprocess_for_ocr(image_path: str) -> "Image":
+def _preprocess_for_ocr(image_path: str) -> list:
     """
     Enhance image contrast and sharpness for better OCR accuracy.
+    Returns a list of preprocessed image variants (original + rotated)
+    to handle vertical/rotated text on cylindrical batteries.
     """
     if not PIL_AVAILABLE:
-        return None
+        return []
 
     img = Image.open(image_path).convert("RGB")
 
@@ -91,7 +93,12 @@ def _preprocess_for_ocr(image_path: str) -> "Image":
     # Increase sharpness
     img = ImageEnhance.Sharpness(img).enhance(2.0)
 
-    return img
+    # Return multiple orientations to handle rotated text on batteries
+    variants = [img]
+    variants.append(img.rotate(90, expand=True))   # 90° CW text
+    variants.append(img.rotate(270, expand=True))   # 90° CCW text
+
+    return variants
 
 
 def _extract_brand(text: str) -> str:
@@ -147,8 +154,8 @@ def extract_battery_info(image_path: str) -> dict:
                     pytesseract.pytesseract.tesseract_cmd = path
                     break
 
-            # Try multiple PSM modes for better results
-            img = _preprocess_for_ocr(image_path)
+            # Try multiple PSM modes AND rotations for better results
+            img_variants = _preprocess_for_ocr(image_path)
             configs = [
                 "--psm 6 --oem 3",   # Uniform block of text
                 "--psm 11 --oem 3",  # Sparse text
@@ -156,12 +163,13 @@ def extract_battery_info(image_path: str) -> dict:
             ]
 
             texts = []
-            for cfg in configs:
-                try:
-                    t = pytesseract.image_to_string(img or image_path, config=cfg)
-                    texts.append(t)
-                except Exception:
-                    pass
+            for img in (img_variants or [image_path]):
+                for cfg in configs:
+                    try:
+                        t = pytesseract.image_to_string(img, config=cfg)
+                        texts.append(t)
+                    except Exception:
+                        pass
 
             raw_text = "\n".join(texts)
 
