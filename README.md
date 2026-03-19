@@ -27,6 +27,78 @@ This approach offers a scalable, efficient, and safer alternative to traditional
 
 ---
 
+## 🛠️ Tech Stack
+
+### Backend
+
+| Technology | Version | Role |
+|-----------|---------|------|
+| **Python** | 3.9+ | Core programming language |
+| **Flask** | 3.0.2 | Lightweight WSGI web framework for REST APIs and page routing |
+| **Flask-SQLAlchemy** | 3.1.1 | ORM for database models (User accounts, session data) |
+| **Flask-JWT-Extended** | 4.6.0 | JSON Web Token authentication with token blocklist |
+| **Flask-Bcrypt** | 1.0.1 | Secure password hashing (bcrypt, cost factor 12) |
+| **Flask-CORS** | 4.0.0 | Cross-Origin Resource Sharing for API access |
+| **SQLite** | Built-in | Serverless relational database (zero configuration) |
+| **Werkzeug** | 3.0.1 | WSGI utility library (secure file handling, routing) |
+
+### Machine Learning & Computer Vision
+
+| Technology | Version | Role |
+|-----------|---------|------|
+| **PyTorch** | 2.2+ | Deep learning framework for model training and inference |
+| **TorchVision** | 0.17+ | Pre-trained MobileNetV2, image transforms, data loaders |
+| **MobileNetV2** | — | CNN backbone fine-tuned for battery detection (99.67% accuracy) |
+| **OpenCV** | 4.9+ | Computer vision: Hough transforms, Canny edge detection, contour analysis |
+| **Tesseract OCR** | 5.x | Optical character recognition engine for text extraction |
+| **pytesseract** | 0.3.10 | Python wrapper for Tesseract OCR |
+| **Pillow** | 10.2+ | Image pre-processing: resize, sharpen, contrast enhancement |
+| **Ultralytics** | 8.1+ | YOLO utilities and model management |
+
+### Data Science & Analysis
+
+| Technology | Version | Role |
+|-----------|---------|------|
+| **NumPy** | 1.26+ | Numerical operations, array processing |
+| **Pandas** | 2.2+ | Data manipulation and analysis |
+| **scikit-learn** | 1.4+ | ML utilities, metrics, data splitting |
+| **Matplotlib** | 3.8+ | Training visualization, loss/accuracy plots |
+| **Seaborn** | 0.13+ | Statistical data visualization |
+
+### Frontend
+
+| Technology | Role |
+|-----------|------|
+| **HTML5** | Page structure and semantic markup |
+| **CSS3** | Professional light theme with responsive design |
+| **Vanilla JavaScript** | API calls (fetch), DOM manipulation, drag-and-drop upload |
+| **Inter Font** | Clean, professional typography (Google Fonts) |
+| **JetBrains Mono** | Monospaced font for data values and code |
+
+### Infrastructure & Tools
+
+| Technology | Role |
+|-----------|------|
+| **SQLite** | Zero-config database — no external DB server needed |
+| **JWT (JSON Web Tokens)** | Stateless authentication with 24-hour expiry |
+| **bcrypt** | Industry-standard password hashing |
+| **REST API** | JSON-based API architecture for all endpoints |
+| **Git / GitHub** | Version control and code hosting |
+| **venv** | Python virtual environment for dependency isolation |
+
+### Why These Choices?
+
+| Decision | Rationale |
+|----------|-----------|
+| **Flask over Django** | Lightweight, minimal boilerplate — ideal for API-first ML apps |
+| **MobileNetV2 over ResNet/VGG** | 10× smaller model (8.7 MB), fast CPU inference (~200ms), high accuracy |
+| **SQLite over PostgreSQL** | Zero setup, self-contained — perfect for single-server deployment |
+| **Tesseract over cloud OCR** | Free, offline, no API keys required, runs entirely on-device |
+| **Vanilla JS over React** | No build step, minimal complexity for 4 pages |
+| **JWT over sessions** | Stateless auth, easy to scale, works with REST APIs |
+
+---
+
 ## ✅ Requirements Compliance Matrix
 
 | FR # | Requirement | Status | Implementation |
@@ -50,7 +122,7 @@ This approach offers a scalable, efficient, and safer alternative to traditional
 ┌─────────────────────────────────────────────────────────────────────┐
 │                        PRESENTATION LAYER                           │
 │  login.html  ·  register.html  ·  dashboard.html  ·  results.html  │
-│           (Dark Glassmorphism UI — Vanilla HTML/CSS/JS)             │
+│           (Professional Light UI — Vanilla HTML/CSS/JS)              │
 └────────────────────────────┬────────────────────────────────────────┘
                              │ HTTP / REST API
 ┌────────────────────────────▼────────────────────────────────────────┐
