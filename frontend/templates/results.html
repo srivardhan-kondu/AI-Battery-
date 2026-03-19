@@ -8,6 +8,127 @@
     <meta name="description"
         content="Exploratory data analysis — view recoverable elements and material recovery percentages for each battery type.">
     <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .summary-stat {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        .summary-stat .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 4px;
+        }
+        .summary-stat .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+        }
+        .info-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 16px;
+        }
+        .info-card h3 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        .info-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        .hazard-banner {
+            background: #fef2f2;
+            border: 1px solid #fca5a5;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .hazard-banner .hazard-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        .hazard-banner .hazard-text {
+            font-size: 0.875rem;
+            color: #991b1b;
+            font-weight: 500;
+        }
+        .hazard-banner .hazard-text strong {
+            display: block;
+            font-size: 0.95rem;
+            margin-bottom: 2px;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+        .badge-critical { background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
+        .badge-high { background: #fff7ed; color: #ea580c; border: 1px solid #fdba74; }
+        .badge-moderate { background: #fffbeb; color: #d97706; border: 1px solid #fcd34d; }
+        .badge-low { background: #f0fdf4; color: #16a34a; border: 1px solid #86efac; }
+        .badge-economic-high { background: #eff6ff; color: #2563eb; border: 1px solid #93c5fd; }
+        .badge-economic-medium { background: #f5f3ff; color: #7c3aed; border: 1px solid #c4b5fd; }
+        .badge-economic-low { background: #f9fafb; color: #6b7280; border: 1px solid #d1d5db; }
+        .app-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .app-tag {
+            background: #eff6ff;
+            color: #2563eb;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid #bfdbfe;
+        }
+        .process-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            line-height: 1.5;
+            font-style: italic;
+        }
+        .element-badges {
+            display: flex;
+            gap: 4px;
+            margin-top: 4px;
+        }
+        .recovery-bar-item {
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 
 <body>
@@ -31,7 +152,7 @@
                 <!-- ── Header ────────────────────────────────────────────────────── -->
                 <div class="page-header">
                     <h1>Recyclable Material <span class="gradient-text">Recovery Analysis</span></h1>
-                    <p>FR10 & FR11 — Recoverable elements and percentage ranges per battery chemistry</p>
+                    <p>FR10 & FR11 — Recoverable elements, recovery processes, hazard levels, and economic value per battery chemistry</p>
                 </div>
 
                 <!-- ── Last Scan Info ─────────────────────────────────────────────── -->
@@ -60,68 +181,71 @@
                     </div>
                 </div>
 
-                <!-- ── Recovery Chart ─────────────────────────────────────────────── -->
+                <!-- ── Recovery Results Section ───────────────────────────────────── -->
                 <div id="recovery-section" class="hidden">
-                    <div class="glass-card chart-container">
-                        <div
-                            style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+
+                    <!-- ── Battery Overview Card ──────────────────────────────────── -->
+                    <div class="glass-card" style="padding: 28px; margin-bottom: 24px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
                             <div>
-                                <h2 id="chart-title" style="font-size: 1.3rem; font-weight: 700; margin-bottom: 4px;">
-                                </h2>
+                                <h2 id="chart-title" style="font-size: 1.3rem; font-weight: 700; margin-bottom: 4px;"></h2>
                                 <p id="chart-subtitle" class="chart-subtitle"></p>
                             </div>
                             <div class="stat-row" id="chart-chips"></div>
                         </div>
+                        <div id="battery-description" class="info-card" style="display:none;"></div>
+                        <div id="battery-applications" style="display:none; margin-bottom: 16px;"></div>
+                        <div id="hazard-banner" style="display:none;"></div>
+                    </div>
 
+                    <!-- ── Summary Statistics ─────────────────────────────────────── -->
+                    <div id="summary-stats" class="summary-grid"></div>
+
+                    <!-- ── Recycling Process Overview ─────────────────────────────── -->
+                    <div id="recycling-process-card" class="glass-card" style="padding: 28px; margin-bottom: 24px; display:none;">
+                        <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;">♻️ Recycling Process Overview</h2>
+                        <p id="recycling-process-text" style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.7;"></p>
+                    </div>
+
+                    <!-- ── Recovery Bars Chart ────────────────────────────────────── -->
+                    <div class="glass-card chart-container">
+                        <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 4px;">Element Recovery Rates</h2>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 24px;">
+                            Recovery percentages with process details, hazard levels, and economic value
+                        </p>
                         <div class="recovery-bars" id="recovery-bars"></div>
 
                         <!-- Legend -->
-                        <div
-                            style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); display: flex; gap: 24px; flex-wrap: wrap;">
-                            <div
-                                style="display:flex; align-items:center; gap:8px; font-size:0.8rem; color:var(--text-secondary);">
-                                <div
-                                    style="width:12px; height:12px; background: var(--gradient-main); border-radius: 2px;">
-                                </div>
+                        <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); display: flex; gap: 24px; flex-wrap: wrap;">
+                            <div style="display:flex; align-items:center; gap:8px; font-size:0.8rem; color:var(--text-secondary);">
+                                <div style="width:12px; height:12px; background: var(--accent-primary); border-radius: 2px;"></div>
                                 Average Recovery Rate
                             </div>
-                            <div
-                                style="display:flex; align-items:center; gap:8px; font-size:0.8rem; color:var(--text-secondary);">
-                                <div
-                                    style="width:12px; height:3px; background: rgba(255,255,255,0.2); border-radius:1px;">
-                                </div>
-                                Min–Max Range
+                            <div style="display:flex; align-items:center; gap:8px; font-size:0.8rem; color:var(--text-secondary);">
+                                <span class="badge badge-critical" style="margin-left:0;">Critical</span>
+                                <span class="badge badge-high" style="margin-left:0;">High</span>
+                                <span class="badge badge-moderate" style="margin-left:0;">Moderate</span>
+                                <span class="badge badge-low" style="margin-left:0;">Low</span>
+                                Hazard Level
                             </div>
                         </div>
                     </div>
 
-                    <!-- ── Raw Data Table ─────────────────────────────────────────── -->
+                    <!-- ── Detailed Data Table ────────────────────────────────────── -->
                     <div class="glass-card" style="padding: 28px; margin-top: 24px;">
-                        <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 20px;">Element Recovery Detail
-                        </h2>
+                        <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 20px;">Element Recovery Detail</h2>
                         <div style="overflow-x: auto;">
-                            <table id="recovery-table"
-                                style="width:100%; border-collapse: collapse; font-size: 0.875rem;">
+                            <table id="recovery-table" style="width:100%; border-collapse: collapse; font-size: 0.875rem;">
                                 <thead>
-                                    <tr style="border-bottom: 1px solid var(--border); text-align: left;">
-                                        <th
-                                            style="padding: 12px 16px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: .05em;">
-                                            Element</th>
-                                        <th
-                                            style="padding: 12px 16px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: .05em;">
-                                            Symbol</th>
-                                        <th
-                                            style="padding: 12px 16px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: .05em;">
-                                            Min %</th>
-                                        <th
-                                            style="padding: 12px 16px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: .05em;">
-                                            Max %</th>
-                                        <th
-                                            style="padding: 12px 16px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: .05em;">
-                                            Avg %</th>
-                                        <th
-                                            style="padding: 12px 16px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: .05em;">
-                                            Notes</th>
+                                    <tr style="border-bottom: 2px solid var(--border); text-align: left;">
+                                        <th style="padding: 12px 16px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: .05em;">Element</th>
+                                        <th style="padding: 12px 16px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: .05em;">Symbol</th>
+                                        <th style="padding: 12px 16px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: .05em;">Min %</th>
+                                        <th style="padding: 12px 16px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: .05em;">Max %</th>
+                                        <th style="padding: 12px 16px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: .05em;">Avg %</th>
+                                        <th style="padding: 12px 16px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: .05em;">Hazard</th>
+                                        <th style="padding: 12px 16px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: .05em;">Value</th>
+                                        <th style="padding: 12px 16px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: .05em;">Recovery Process</th>
                                     </tr>
                                 </thead>
                                 <tbody id="table-body"></tbody>
@@ -168,6 +292,25 @@
         let selectedChemistry = null;
         let allChemistries = [];
 
+        function hazardBadge(level) {
+            const map = {
+                critical: '<span class="badge badge-critical">⚠ Critical</span>',
+                high: '<span class="badge badge-high">⚠ High</span>',
+                moderate: '<span class="badge badge-moderate">Moderate</span>',
+                low: '<span class="badge badge-low">Low</span>'
+            };
+            return map[level] || map.low;
+        }
+
+        function economicBadge(value) {
+            const map = {
+                high: '<span class="badge badge-economic-high">$ High Value</span>',
+                medium: '<span class="badge badge-economic-medium">$ Medium</span>',
+                low: '<span class="badge badge-economic-low">$ Low</span>'
+            };
+            return map[value] || map.low;
+        }
+
         // ── Load available chemistries ────────────────────────────────────────
         async function loadChemistries() {
             try {
@@ -186,21 +329,20 @@
         function renderChemistryGrid(chemistries) {
             const grid = document.getElementById('chemistry-grid');
             grid.innerHTML = chemistries.map(c => `
-        <button
-          class="chemistry-btn"
-          id="chem-btn-${c.key.replace(/[^a-z0-9]/gi, '')}"
-          onclick="selectChemistry('${c.key}', '${c.typical_voltage}')"
-        >
-          <div class="chem-name">${c.full_name}</div>
-          <div class="chem-voltage">⚡ ${c.typical_voltage} &nbsp;|&nbsp; ${c.element_count} elements</div>
-        </button>
-      `).join('');
+                <button
+                  class="chemistry-btn"
+                  id="chem-btn-${c.key.replace(/[^a-z0-9]/gi, '')}"
+                  onclick="selectChemistry('${c.key}', '${c.typical_voltage}')"
+                >
+                  <div class="chem-name">${c.full_name}</div>
+                  <div class="chem-voltage">⚡ ${c.typical_voltage} &nbsp;|&nbsp; ${c.element_count} elements${c.has_hazards ? ' &nbsp;|&nbsp; ⚠️ Hazardous' : ''}</div>
+                </button>
+            `).join('');
         }
 
         async function selectChemistry(chemistry, voltage) {
             selectedChemistry = chemistry;
 
-            // Highlight selected
             document.querySelectorAll('.chemistry-btn').forEach(b => b.classList.remove('selected'));
             const safeId = chemistry.replace(/[^a-z0-9]/gi, '');
             const btn = document.getElementById(`chem-btn-${safeId}`);
@@ -230,47 +372,130 @@
 
         function renderRecovery(data) {
             const cd = data.chart_data;
+            const summary = data.summary || {};
 
-            // Chart title
+            // ── Title & Subtitle ──
             document.getElementById('chart-title').textContent =
                 `${data.full_name} — Recoverable Elements`;
             document.getElementById('chart-subtitle').textContent =
-                `Typical voltage: ${data.typical_voltage} | ${data.element_count} recoverable elements | Common brands: ${data.common_brands.slice(0, 3).join(', ')}`;
+                `Typical voltage: ${data.typical_voltage} | ${data.element_count} recoverable elements | Brands: ${data.common_brands.slice(0, 4).join(', ')}`;
 
-            // Chips
+            // ── Chips ──
             const chips = [
-                { label: `${data.element_count} Elements`, color: 'var(--accent-cyan)', bg: 'rgba(0,212,255,0.1)' },
-                { label: data.typical_voltage, color: 'var(--accent-gold)', bg: 'rgba(255,217,61,0.1)' },
+                { label: `${data.element_count} Elements`, color: '#2563eb', bg: '#eff6ff' },
+                { label: data.typical_voltage, color: '#d97706', bg: '#fffbeb' },
             ];
+            if (summary.has_hazards) {
+                chips.push({ label: '⚠ Contains Hazards', color: '#dc2626', bg: '#fef2f2' });
+            }
             document.getElementById('chart-chips').innerHTML = chips.map(c =>
-                `<div class="stat-chip" style="background:${c.bg}; color:${c.color}; border: 1px solid ${c.color}40;">${c.label}</div>`
+                `<div class="stat-chip" style="background:${c.bg}; color:${c.color}; border: 1px solid ${c.color}30; font-weight:600;">${c.label}</div>`
             ).join('');
 
-            // Bars
+            // ── Battery Description ──
+            const descCard = document.getElementById('battery-description');
+            if (data.description) {
+                descCard.style.display = 'block';
+                descCard.innerHTML = `<h3>About This Battery Type</h3><p>${data.description}</p>`;
+            } else {
+                descCard.style.display = 'none';
+            }
+
+            // ── Applications ──
+            const appsDiv = document.getElementById('battery-applications');
+            if (data.common_applications && data.common_applications.length) {
+                appsDiv.style.display = 'block';
+                appsDiv.innerHTML = `
+                    <div class="info-card">
+                        <h3>Common Applications</h3>
+                        <div class="app-tags">
+                            ${data.common_applications.map(a => `<span class="app-tag">${a}</span>`).join('')}
+                        </div>
+                    </div>`;
+            } else {
+                appsDiv.style.display = 'none';
+            }
+
+            // ── Hazard Banner ──
+            const hazardBanner = document.getElementById('hazard-banner');
+            if (summary.has_hazards && summary.hazard_elements) {
+                hazardBanner.style.display = 'block';
+                const hazardList = summary.hazard_elements.map(h =>
+                    `<strong>${h.element} (${h.symbol})</strong> — ${h.hazard_level} hazard`
+                ).join(', ');
+                hazardBanner.innerHTML = `
+                    <div class="hazard-banner">
+                        <div class="hazard-icon">⚠️</div>
+                        <div class="hazard-text">
+                            <strong>Environmental & Safety Warning</strong>
+                            ${data.environmental_notes || `This battery contains hazardous materials: ${hazardList}. Proper handling and certified recycling facilities are required.`}
+                        </div>
+                    </div>`;
+            } else {
+                hazardBanner.style.display = 'none';
+            }
+
+            // ── Summary Statistics ──
+            const statsHtml = `
+                <div class="summary-stat">
+                    <div class="stat-value" style="color: #2563eb;">${summary.overall_avg_recovery || 0}%</div>
+                    <div class="stat-label">Avg Recovery Rate</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="stat-value" style="color: #059669;">${summary.highest_recovery ? summary.highest_recovery.avg + '%' : 'N/A'}</div>
+                    <div class="stat-label">Highest (${summary.highest_recovery ? summary.highest_recovery.element : '-'})</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="stat-value" style="color: #d97706;">${summary.lowest_recovery ? summary.lowest_recovery.avg + '%' : 'N/A'}</div>
+                    <div class="stat-label">Lowest (${summary.lowest_recovery ? summary.lowest_recovery.element : '-'})</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="stat-value" style="color: #7c3aed;">${summary.high_value_elements ? summary.high_value_elements.length : 0}</div>
+                    <div class="stat-label">High-Value Elements</div>
+                </div>
+            `;
+            document.getElementById('summary-stats').innerHTML = statsHtml;
+
+            // ── Recycling Process ──
+            const recycleCard = document.getElementById('recycling-process-card');
+            if (data.recycling_process) {
+                recycleCard.style.display = 'block';
+                document.getElementById('recycling-process-text').textContent = data.recycling_process;
+            } else {
+                recycleCard.style.display = 'none';
+            }
+
+            // ── Recovery Bars ──
             const bars = document.getElementById('recovery-bars');
             bars.innerHTML = cd.labels.map((label, i) => {
                 const avg = cd.avg_values[i];
                 const color = cd.colors[i];
+                const hazard = cd.hazard_levels ? cd.hazard_levels[i] : 'low';
+                const ecoVal = cd.economic_values ? cd.economic_values[i] : 'low';
+                const process = cd.processes ? cd.processes[i] : '';
                 return `
-          <div class="recovery-bar-item">
-            <div class="recovery-bar-header">
-              <div class="element-name">
-                ${label}
-                <span class="element-symbol">${cd.symbols[i]}</span>
-              </div>
-              <div class="recovery-range">${cd.min_values[i]}% – ${cd.max_values[i]}%</div>
-            </div>
-            <div class="bar-track">
-              <div class="bar-fill" id="bar-${i}"
-                   style="width: 0%; background: linear-gradient(90deg, ${color}99, ${color});">
-              </div>
-            </div>
-            <div class="element-note">${cd.notes[i]}</div>
-          </div>
-        `;
+                    <div class="recovery-bar-item">
+                        <div class="recovery-bar-header">
+                            <div class="element-name">
+                                ${label}
+                                <span class="element-symbol">${cd.symbols[i]}</span>
+                                ${hazardBadge(hazard)}
+                                ${economicBadge(ecoVal)}
+                            </div>
+                            <div class="recovery-range">${cd.min_values[i]}% – ${cd.max_values[i]}% (avg ${avg}%)</div>
+                        </div>
+                        <div class="bar-track">
+                            <div class="bar-fill" id="bar-${i}"
+                                 style="width: 0%; background: linear-gradient(90deg, ${color}99, ${color});">
+                            </div>
+                        </div>
+                        <div class="element-note">${cd.notes[i]}</div>
+                        ${process ? `<div class="process-text">📋 ${process}</div>` : ''}
+                    </div>
+                `;
             }).join('');
 
-            // Animate bars after render
+            // Animate bars
             setTimeout(() => {
                 cd.avg_values.forEach((avg, i) => {
                     const el = document.getElementById(`bar-${i}`);
@@ -278,18 +503,25 @@
                 });
             }, 100);
 
-            // Table
+            // ── Table ──
             const tbody = document.getElementById('table-body');
-            tbody.innerHTML = cd.labels.map((label, i) => `
-        <tr style="border-bottom: 1px solid var(--border);">
-          <td style="padding: 14px 16px; font-weight: 600; color: ${cd.colors[i]};">${label}</td>
-          <td style="padding: 14px 16px; font-family: var(--font-mono); color: var(--text-muted);">${cd.symbols[i]}</td>
-          <td style="padding: 14px 16px; color: var(--text-secondary);">${cd.min_values[i]}%</td>
-          <td style="padding: 14px 16px; color: var(--accent-green);">${cd.max_values[i]}%</td>
-          <td style="padding: 14px 16px; font-weight: 600;">${cd.avg_values[i]}%</td>
-          <td style="padding: 14px 16px; color: var(--text-muted); font-size: 0.8rem; max-width: 280px;">${cd.notes[i]}</td>
-        </tr>
-      `).join('');
+            tbody.innerHTML = cd.labels.map((label, i) => {
+                const hazard = cd.hazard_levels ? cd.hazard_levels[i] : 'low';
+                const ecoVal = cd.economic_values ? cd.economic_values[i] : 'low';
+                const process = cd.processes ? cd.processes[i] : '';
+                return `
+                    <tr style="border-bottom: 1px solid var(--border);">
+                        <td style="padding: 14px 16px; font-weight: 600; color: ${cd.colors[i]};">${label}</td>
+                        <td style="padding: 14px 16px; font-family: var(--font-mono); color: var(--text-muted);">${cd.symbols[i]}</td>
+                        <td style="padding: 14px 16px; color: var(--text-secondary);">${cd.min_values[i]}%</td>
+                        <td style="padding: 14px 16px; color: #059669; font-weight: 600;">${cd.max_values[i]}%</td>
+                        <td style="padding: 14px 16px; font-weight: 700;">${cd.avg_values[i]}%</td>
+                        <td style="padding: 14px 16px;">${hazardBadge(hazard)}</td>
+                        <td style="padding: 14px 16px;">${economicBadge(ecoVal)}</td>
+                        <td style="padding: 14px 16px; color: var(--text-muted); font-size: 0.8rem; max-width: 300px;">${process || cd.notes[i]}</td>
+                    </tr>
+                `;
+            }).join('');
 
             document.getElementById('recovery-section').classList.remove('hidden');
         }
@@ -309,15 +541,14 @@
             document.getElementById('scan-summary').textContent =
                 `${s.brand || 'Unknown Brand'} ${s.chemistry || 'Unknown Chemistry'} — ${s.voltage || 'N/A'}`;
             document.getElementById('scan-chips').innerHTML = `
-        <div class="stat-chip" style="background:rgba(0,255,136,0.1); color:var(--accent-green); border: 1px solid rgba(0,255,136,0.25); font-size:.8rem;">
-          ${s.battery_detected ? '✅ Battery Detected' : '❌ Not Detected'}
-        </div>
-        <div class="stat-chip" style="background:rgba(0,212,255,0.1); color:var(--accent-cyan); border: 1px solid rgba(0,212,255,0.25); font-size:.8rem;">
-          Confidence: ${s.confidence ? (s.confidence * 100).toFixed(1) + '%' : 'N/A'}
-        </div>
-      `;
+                <div class="stat-chip" style="background:#f0fdf4; color:#16a34a; border: 1px solid #86efac; font-size:.8rem;">
+                  ${s.battery_detected ? '✅ Battery Detected' : '❌ Not Detected'}
+                </div>
+                <div class="stat-chip" style="background:#eff6ff; color:#2563eb; border: 1px solid #93c5fd; font-size:.8rem;">
+                  Confidence: ${s.confidence ? (s.confidence * 100).toFixed(1) + '%' : 'N/A'}
+                </div>
+            `;
 
-            // Auto-load chemistry if detected
             if (s.chemistry && s.chemistry !== 'Unknown') {
                 setTimeout(() => selectChemistry(s.chemistry, s.voltage || 'Unknown'), 300);
             }
@@ -330,5 +561,7 @@
         })();
     </script>
 </body>
+
+</html>
 
 </html>

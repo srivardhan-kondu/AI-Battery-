@@ -3,55 +3,80 @@
     "full_name": "Lithium-Ion",
     "typical_voltage": "3.6-3.7V",
     "common_brands": ["LG", "Samsung", "Panasonic", "Sony", "BYD", "CATL", "Tesla", "Duracell"],
+    "description": "Lithium-ion batteries are the most widely used rechargeable batteries in consumer electronics, electric vehicles, and energy storage systems. They offer high energy density, long cycle life, and low self-discharge rates.",
+    "common_applications": ["Smartphones", "Laptops", "Electric Vehicles", "Power Tools", "Energy Storage Systems"],
+    "recycling_process": "Typically involves mechanical dismantling, thermal pre-treatment, hydrometallurgical leaching (acid dissolution), followed by solvent extraction and precipitation to recover individual metals.",
+    "environmental_notes": "Contains flammable electrolyte (organic solvents). Must be discharged and handled with care. Cobalt mining has significant environmental and ethical concerns.",
     "recyclable_elements": {
       "Cobalt": {
         "symbol": "Co",
         "recovery_min": 90,
         "recovery_max": 98,
         "unit": "%",
-        "notes": "High-value cathode material; hydrometallurgical recovery"
+        "notes": "High-value cathode material; hydrometallurgical recovery",
+        "process": "Recovered through acid leaching and solvent extraction. Cobalt sulfate or cobalt oxide is precipitated for reuse in new cathode production.",
+        "economic_value": "high",
+        "hazard_level": "moderate"
       },
       "Nickel": {
         "symbol": "Ni",
         "recovery_min": 85,
         "recovery_max": 95,
         "unit": "%",
-        "notes": "Recovered via solvent extraction"
+        "notes": "Recovered via solvent extraction",
+        "process": "Extracted through hydrometallurgical processes. Nickel sulfate is commonly recovered for cathode precursor manufacturing.",
+        "economic_value": "high",
+        "hazard_level": "low"
       },
       "Lithium": {
         "symbol": "Li",
         "recovery_min": 70,
         "recovery_max": 99,
         "unit": "%",
-        "notes": "Modern specialized processes exceed 99%; standard: 70–95%"
+        "notes": "Modern specialized processes exceed 99%; standard: 70–95%",
+        "process": "Recovered as lithium carbonate (Li2CO3) or lithium hydroxide (LiOH) through precipitation from leach solutions. Lab-scale processes achieve 99%+.",
+        "economic_value": "high",
+        "hazard_level": "low"
       },
       "Copper": {
         "symbol": "Cu",
         "recovery_min": 90,
         "recovery_max": 98,
         "unit": "%",
-        "notes": "Current collector foils; efficient mechanical separation"
+        "notes": "Current collector foils; efficient mechanical separation",
+        "process": "Mechanically separated from anode current collector foils. High-purity copper is recovered through electrolytic refining.",
+        "economic_value": "medium",
+        "hazard_level": "low"
       },
       "Aluminum": {
         "symbol": "Al",
         "recovery_min": 90,
         "recovery_max": 97,
         "unit": "%",
-        "notes": "Cathode current collector"
+        "notes": "Cathode current collector",
+        "process": "Separated mechanically from cathode layers. Aluminum is melted and cast into ingots for reuse.",
+        "economic_value": "medium",
+        "hazard_level": "low"
       },
       "Graphite": {
         "symbol": "C",
         "recovery_min": 60,
         "recovery_max": 85,
         "unit": "%",
-        "notes": "Anode material; reused in new anode production; variable recovery"
+        "notes": "Anode material; reused in new anode production; variable recovery",
+        "process": "Recovered through flotation or thermal treatment. Can be directly reused in new anode production or processed into synthetic graphite.",
+        "economic_value": "medium",
+        "hazard_level": "low"
       },
       "Manganese": {
         "symbol": "Mn",
         "recovery_min": 75,
         "recovery_max": 92,
         "unit": "%",
-        "notes": "Present in NMC and LMO chemistries"
+        "notes": "Present in NMC and LMO chemistries",
+        "process": "Co-extracted during hydrometallurgical processing of cathode materials. Recovered as manganese sulfate or MnO2.",
+        "economic_value": "medium",
+        "hazard_level": "low"
       }
     }
   },
@@ -59,48 +84,70 @@
     "full_name": "Lithium Iron Phosphate",
     "typical_voltage": "3.2V",
     "common_brands": ["BYD", "CATL", "A123", "Winston"],
+    "description": "LiFePO4 batteries are known for superior thermal stability, long cycle life (2000+ cycles), and safety. They are cobalt-free, making them more environmentally friendly than standard Li-ion.",
+    "common_applications": ["Electric Buses", "Solar Storage", "Marine Systems", "Backup Power", "Golf Carts"],
+    "recycling_process": "Mechanical shredding and classification, followed by hydrometallurgical treatment. Iron phosphate can be re-synthesized directly into new LFP cathode material.",
+    "environmental_notes": "Considered safer than other lithium-ion chemistries due to cobalt-free design. Lower thermal runaway risk. Iron and phosphate are non-toxic.",
     "recyclable_elements": {
       "Lithium": {
         "symbol": "Li",
         "recovery_min": 75,
         "recovery_max": 95,
         "unit": "%",
-        "notes": "Carbonate or hydroxide form; precipitation method"
+        "notes": "Carbonate or hydroxide form; precipitation method",
+        "process": "Leached from cathode with dilute acids and precipitated as lithium carbonate or lithium hydroxide for reuse.",
+        "economic_value": "high",
+        "hazard_level": "low"
       },
       "Iron": {
         "symbol": "Fe",
         "recovery_min": 85,
         "recovery_max": 97,
         "unit": "%",
-        "notes": "Iron phosphate re-synthesis possible"
+        "notes": "Iron phosphate re-synthesis possible",
+        "process": "Recovered as iron phosphate (FePO4) which can be directly re-synthesized into LFP cathode material, creating a closed-loop process.",
+        "economic_value": "low",
+        "hazard_level": "low"
       },
       "Phosphate": {
         "symbol": "PO4",
         "recovery_min": 80,
         "recovery_max": 95,
         "unit": "%",
-        "notes": "Can be re-synthesized into LFP cathode material"
+        "notes": "Can be re-synthesized into LFP cathode material",
+        "process": "Co-recovered with iron through selective leaching. Phosphate is re-used in cathode synthesis or as fertilizer feedstock.",
+        "economic_value": "low",
+        "hazard_level": "low"
       },
       "Copper": {
         "symbol": "Cu",
         "recovery_min": 88,
         "recovery_max": 97,
         "unit": "%",
-        "notes": "Current collector"
+        "notes": "Current collector",
+        "process": "Separated from anode current collector foils via mechanical processing and electrolytic refining.",
+        "economic_value": "medium",
+        "hazard_level": "low"
       },
       "Aluminum": {
         "symbol": "Al",
         "recovery_min": 88,
         "recovery_max": 96,
         "unit": "%",
-        "notes": "Casing and current collector"
+        "notes": "Casing and current collector",
+        "process": "Mechanical separation and smelting. Aluminum casing and cathode foils are collected separately.",
+        "economic_value": "medium",
+        "hazard_level": "low"
       },
       "Carbon (Graphite)": {
         "symbol": "C",
         "recovery_min": 55,
         "recovery_max": 80,
         "unit": "%",
-        "notes": "Anode; reusable in new cells"
+        "notes": "Anode; reusable in new cells",
+        "process": "Flotation and thermal purification. Graphite can be regenerated for reuse as anode material in new battery cells.",
+        "economic_value": "low",
+        "hazard_level": "low"
       }
     }
   },
@@ -108,41 +155,60 @@
     "full_name": "Nickel-Metal Hydride",
     "typical_voltage": "1.2V",
     "common_brands": ["Energizer", "Duracell", "Panasonic", "Varta", "Eneloop"],
+    "description": "NiMH batteries are widely used rechargeable alternatives to single-use alkaline batteries. They offer good capacity, are less toxic than NiCd, and are commonly found in hybrid vehicles and consumer electronics.",
+    "common_applications": ["Hybrid Vehicles (Toyota Prius)", "Rechargeable AA/AAA", "Digital Cameras", "Cordless Phones", "Medical Devices"],
+    "recycling_process": "Pyrometallurgical smelting at high temperatures to recover nickel and cobalt as alloy. Rare earth elements are recovered through hydrometallurgical acid leaching.",
+    "environmental_notes": "Relatively low toxicity. Contains rare earth elements (La, Ce, Nd) whose mining has significant environmental impact. Nickel recovery is economically viable.",
     "recyclable_elements": {
       "Nickel": {
         "symbol": "Ni",
         "recovery_min": 90,
         "recovery_max": 98,
         "unit": "%",
-        "notes": "Primary valuable material; directly smelted"
+        "notes": "Primary valuable material; directly smelted",
+        "process": "Recovered through pyrometallurgical smelting. Nickel is the most economically valuable component and drives recycling economics.",
+        "economic_value": "high",
+        "hazard_level": "low"
       },
       "Cobalt": {
         "symbol": "Co",
         "recovery_min": 85,
         "recovery_max": 95,
         "unit": "%",
-        "notes": "Minor component in cathode alloy"
+        "notes": "Minor component in cathode alloy",
+        "process": "Co-recovered with nickel during smelting. Separated through solvent extraction in downstream processing.",
+        "economic_value": "high",
+        "hazard_level": "moderate"
       },
       "Rare Earth Elements": {
         "symbol": "RE",
         "recovery_min": 70,
         "recovery_max": 90,
         "unit": "%",
-        "notes": "La, Ce, Nd in anode alloy; specialized hydromet process required"
+        "notes": "La, Ce, Nd in anode alloy; specialized hydromet process required",
+        "process": "Lanthanum, cerium, and neodymium are recovered from the hydrogen-absorbing anode alloy via acid leaching and selective precipitation.",
+        "economic_value": "high",
+        "hazard_level": "low"
       },
       "Iron": {
         "symbol": "Fe",
         "recovery_min": 85,
         "recovery_max": 95,
         "unit": "%",
-        "notes": "Steel casing and structural components"
+        "notes": "Steel casing and structural components",
+        "process": "Steel casing is separated magnetically and melted for scrap steel production.",
+        "economic_value": "low",
+        "hazard_level": "low"
       },
       "Zinc": {
         "symbol": "Zn",
         "recovery_min": 75,
         "recovery_max": 90,
         "unit": "%",
-        "notes": "Present in anode alloy"
+        "notes": "Present in anode alloy",
+        "process": "Recovered through hydrometallurgical processing of the anode alloy. Zinc is precipitated as zinc oxide or zinc sulfate.",
+        "economic_value": "medium",
+        "hazard_level": "low"
       }
     }
   },
@@ -150,34 +216,50 @@
     "full_name": "Nickel-Cadmium",
     "typical_voltage": "1.2V",
     "common_brands": ["Saft", "Panasonic", "Varta", "GP"],
+    "description": "NiCd batteries offer excellent high-drain performance and long shelf life. However, they contain toxic cadmium and are being phased out in many regions due to EU Battery Directive restrictions.",
+    "common_applications": ["Emergency Lighting", "Power Tools (legacy)", "Aviation", "Industrial Backup", "Two-Way Radios"],
+    "recycling_process": "Vacuum thermal distillation to recover cadmium as vapour (mandatory by law). Nickel is recovered through pyrometallurgical smelting. Steel casing is magnetically separated.",
+    "environmental_notes": "⚠️ CADMIUM IS HIGHLY TOXIC — mandatory recycling in EU/US. Cadmium is a carcinogen and persistent environmental pollutant. Strict handling and processing regulations apply.",
     "recyclable_elements": {
       "Cadmium": {
         "symbol": "Cd",
         "recovery_min": 90,
         "recovery_max": 99,
         "unit": "%",
-        "notes": "TOXIC — mandatory recovery; vacuum thermal distillation"
+        "notes": "TOXIC — mandatory recovery; vacuum thermal distillation",
+        "process": "Recovered via vacuum thermal distillation at 767°C. Cadmium vapour is condensed and cast into ingots. Recovery is mandatory under EU Battery Directive.",
+        "economic_value": "low",
+        "hazard_level": "critical"
       },
       "Nickel": {
         "symbol": "Ni",
         "recovery_min": 90,
         "recovery_max": 97,
         "unit": "%",
-        "notes": "High recovery via pyrometallurgy + refining"
+        "notes": "High recovery via pyrometallurgy + refining",
+        "process": "After cadmium removal, nickel-rich residue is smelted in electric arc furnaces to produce ferronickel alloy.",
+        "economic_value": "high",
+        "hazard_level": "low"
       },
       "Steel": {
         "symbol": "Fe",
         "recovery_min": 88,
         "recovery_max": 96,
         "unit": "%",
-        "notes": "Casing and structural; melted down"
+        "notes": "Casing and structural; melted down",
+        "process": "Steel casing is magnetically separated during initial dismantling and sent to scrap metal recycling.",
+        "economic_value": "low",
+        "hazard_level": "low"
       },
       "Potassium Hydroxide": {
         "symbol": "KOH",
         "recovery_min": 60,
         "recovery_max": 80,
         "unit": "%",
-        "notes": "Electrolyte; neutralized during processing"
+        "notes": "Electrolyte; neutralized during processing",
+        "process": "Alkaline electrolyte is drained and neutralized to potassium sulfate, which can be used as fertilizer.",
+        "economic_value": "low",
+        "hazard_level": "moderate"
       }
     }
   },
@@ -185,34 +267,50 @@
     "full_name": "Lead-Acid",
     "typical_voltage": "2.0V (12V nominal)",
     "common_brands": ["Exide", "Amara Raja", "Amaron", "Bosch", "Delkor"],
+    "description": "Lead-acid batteries are the most recycled consumer product globally, with over 99% recycling rates in developed countries. They are used primarily in automotive starting, lighting, and ignition (SLI) systems and UPS backup.",
+    "common_applications": ["Automotive (Car Batteries)", "UPS Systems", "Forklifts", "Telecom Backup", "Solar Storage"],
+    "recycling_process": "Batteries are drained of acid, crushed, and separated into lead, plastic (polypropylene), and acid fractions. Lead is smelted in blast or rotary furnaces. Plastic is reprocessed into new casings.",
+    "environmental_notes": "⚠️ LEAD IS TOXIC — regulated hazardous waste. Despite toxicity, lead-acid has the highest recycling rate of any battery type. Acid must be neutralized or converted before disposal.",
     "recyclable_elements": {
       "Lead": {
         "symbol": "Pb",
         "recovery_min": 95,
         "recovery_max": 99,
         "unit": "%",
-        "notes": "Most-recycled battery material globally; smelting"
+        "notes": "Most-recycled battery material globally; smelting",
+        "process": "Lead plates, paste, and grid alloys are smelted in rotary or blast furnaces. Secondary lead accounts for 80% of global lead production.",
+        "economic_value": "high",
+        "hazard_level": "critical"
       },
       "Sulfuric Acid": {
         "symbol": "H2SO4",
         "recovery_min": 85,
         "recovery_max": 95,
         "unit": "%",
-        "notes": "Neutralized or converted to sodium sulfate for industrial use"
+        "notes": "Neutralized or converted to sodium sulfate for industrial use",
+        "process": "Acid is either neutralized to sodium sulfate (Na2SO4) for use in detergent and glass manufacturing, or purified and reused in new batteries.",
+        "economic_value": "low",
+        "hazard_level": "high"
       },
       "Polypropylene": {
         "symbol": "PP",
         "recovery_min": 80,
         "recovery_max": 95,
         "unit": "%",
-        "notes": "Plastic casing; reprocessed into new battery cases"
+        "notes": "Plastic casing; reprocessed into new battery cases",
+        "process": "Polypropylene casings are washed, shredded, and pelletized. The recycled PP is directly reused to manufacture new battery casings.",
+        "economic_value": "low",
+        "hazard_level": "low"
       },
       "Antimony": {
         "symbol": "Sb",
         "recovery_min": 80,
         "recovery_max": 92,
         "unit": "%",
-        "notes": "Grid alloy component; recovered during smelting"
+        "notes": "Grid alloy component; recovered during smelting",
+        "process": "Co-recovered with lead during smelting. Antimony is separated and reused as a lead-grid hardening agent in new batteries.",
+        "economic_value": "medium",
+        "hazard_level": "moderate"
       }
     }
   },
@@ -220,34 +318,50 @@
     "full_name": "Alkaline (Zinc-Manganese Dioxide)",
     "typical_voltage": "1.5V",
     "common_brands": ["Duracell", "Energizer", "Rayovac", "Varta", "Panasonic"],
+    "description": "Alkaline batteries are the most common primary (non-rechargeable) battery type used globally. They power everyday devices and are produced in billions annually. Recycling is growing in importance.",
+    "common_applications": ["Remote Controls", "Flashlights", "Clocks", "Toys", "Smoke Detectors"],
+    "recycling_process": "Mechanical shredding and classification. Steel casing is magnetically separated. Zinc and manganese fractions are recovered through pyrometallurgical or hydrometallurgical processing.",
+    "environmental_notes": "Mercury-free since the 1990s, making them relatively safe. Zinc and manganese are non-toxic. Some jurisdictions allow landfill disposal, but recycling is recommended for resource conservation.",
     "recyclable_elements": {
       "Zinc": {
         "symbol": "Zn",
         "recovery_min": 75,
         "recovery_max": 95,
         "unit": "%",
-        "notes": "Anode; refined for industrial re-use"
+        "notes": "Anode; refined for industrial re-use",
+        "process": "Zinc is recovered through pyrometallurgical processing (rotary kiln) or hydrometallurgical acid leaching. Used in galvanizing and zinc oxide production.",
+        "economic_value": "medium",
+        "hazard_level": "low"
       },
       "Manganese Dioxide": {
         "symbol": "MnO2",
         "recovery_min": 65,
         "recovery_max": 85,
         "unit": "%",
-        "notes": "Cathode; reused in pigments, fertilizers, soil amendment"
+        "notes": "Cathode; reused in pigments, fertilizers, soil amendment",
+        "process": "Recovered as manganese oxide through thermal processing. Reused in production of ferromanganese, fertilizers, and as soil micronutrient.",
+        "economic_value": "low",
+        "hazard_level": "low"
       },
       "Steel": {
         "symbol": "Fe",
         "recovery_min": 85,
         "recovery_max": 95,
         "unit": "%",
-        "notes": "Outer casing; smelted for scrap"
+        "notes": "Outer casing; smelted for scrap",
+        "process": "Steel casings are magnetically separated during initial shredding and sent to steel mills for smelting into new products.",
+        "economic_value": "low",
+        "hazard_level": "low"
       },
       "Potassium Hydroxide": {
         "symbol": "KOH",
         "recovery_min": 50,
         "recovery_max": 70,
         "unit": "%",
-        "notes": "Electrolyte; neutralization during processing"
+        "notes": "Electrolyte; neutralization during processing",
+        "process": "Alkaline electrolyte is washed out and neutralized. Potassium salts may be recovered for industrial use or agricultural applications.",
+        "economic_value": "low",
+        "hazard_level": "low"
       }
     }
   }
