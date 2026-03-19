@@ -12,7 +12,7 @@ eda_bp = Blueprint("eda", __name__)
 
 
 def load_materials_db(path):
-    with open(path, "r") as f:
+    with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
 

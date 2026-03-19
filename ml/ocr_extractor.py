@@ -233,16 +233,28 @@ def extract_battery_info(image_path: str) -> dict:
 
     if TESSERACT_AVAILABLE:
         try:
-            # Set tesseract path if needed
+            # Cross-platform Tesseract detection
+            import platform, shutil
             tesseract_paths = [
                 "/opt/homebrew/bin/tesseract",    # Apple Silicon Mac
                 "/usr/local/bin/tesseract",       # Intel Mac
                 "/usr/bin/tesseract",             # Linux
             ]
-            for path in tesseract_paths:
-                if os.path.exists(path):
-                    pytesseract.pytesseract.tesseract_cmd = path
-                    break
+            if platform.system() == "Windows":
+                tesseract_paths = [
+                    os.path.join(os.environ.get("ProgramFiles", "C:\\Program Files"),
+                                 "Tesseract-OCR", "tesseract.exe"),
+                    os.path.join(os.environ.get("ProgramFiles(x86)", "C:\\Program Files (x86)"),
+                                 "Tesseract-OCR", "tesseract.exe"),
+                ] + tesseract_paths
+            found = shutil.which("tesseract")
+            if found:
+                pytesseract.pytesseract.tesseract_cmd = found
+            else:
+                for path in tesseract_paths:
+                    if os.path.exists(path):
+                        pytesseract.pytesseract.tesseract_cmd = path
+                        break
 
             # Try multiple PSM modes AND rotations for better results
             img_variants = _preprocess_for_ocr(image_path)

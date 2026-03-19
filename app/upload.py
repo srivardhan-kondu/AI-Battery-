@@ -40,6 +40,6 @@ def upload_image():
     return jsonify({
         "message": "File uploaded successfully",
         "filename": safe_name,
-        "path": save_path,
+        "path": f"/uploads/{safe_name}",
         "format": ext.upper()
     }), 200

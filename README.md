@@ -325,111 +325,84 @@ battery_recycling_system/
 
 ### Prerequisites
 
-| Tool | Version | Purpose | Install |
-|------|---------|---------|---------|
-| **Python** | 3.9 – 3.12+ | Runtime | [python.org](https://python.org) |
-| **pip** | 21+ | Package manager | Bundled with Python |
-| **Tesseract OCR** | 4.x+ | Text extraction (Stage 3) | See Step 2 below |
-| **Git** | Any | Version control | [git-scm.com](https://git-scm.com) |
-| **Homebrew** *(macOS only)* | Any | Package manager | [brew.sh](https://brew.sh) |
+| Tool | Version | Required | Purpose |
+|------|---------|----------|---------|
+| **Python** | 3.9 – 3.14 | ✅ Yes | Core runtime |
+| **pip** | 21+ | ✅ Yes | Python package manager (ships with Python) |
+| **Tesseract OCR** | 4.x – 5.x | ✅ Yes | OCR engine for Stage 3 text extraction |
+| **Git** | Any | ✅ Yes | Clone the repository |
+| **Homebrew** | Any | macOS only | Install Tesseract & Python on macOS |
 
-### Step 1 — Clone the Repository
+### System Requirements
+
+| Resource | Minimum | Recommended |
+|----------|---------|-------------|
+| **RAM** | 4 GB | 8 GB |
+| **Disk Space** | ~500 MB (code + deps) | ~2.5 GB (with dataset) |
+| **CPU** | Any x86_64 / ARM64 | Multi-core for faster inference |
+| **GPU** | Not required | CUDA GPU optional for training |
+| **OS** | macOS 11+, Windows 10+, Ubuntu 20.04+ | — |
+
+---
+
+### 🍎 macOS Installation (Intel & Apple Silicon)
+
+#### 1. Install Homebrew (if not installed)
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+After install, follow the instructions Homebrew prints to add it to your PATH.
+
+#### 2. Install Python & Tesseract
+
+```bash
+brew install python@3.12 tesseract
+```
+
+Verify:
+```bash
+python3 --version     # Python 3.12.x
+tesseract --version   # tesseract 5.x.x
+```
+
+**Tesseract paths** (auto-detected by the app):
+| Mac Type | Path |
+|----------|------|
+| Apple Silicon (M1/M2/M3/M4) | `/opt/homebrew/bin/tesseract` |
+| Intel Mac | `/usr/local/bin/tesseract` |
+
+#### 3. Clone & Set Up
 
 ```bash
 git clone https://github.com/srivardhan-kondu/AI-Battery-.git
 cd AI-Battery-
-```
 
-### Step 2 — Install Tesseract OCR
-
-> **⚠️ CRITICAL**: Tesseract is required for OCR (Stage 3). Without it, brand, chemistry, and voltage will return "Unknown".
-
-**macOS (Homebrew):**
-```bash
-brew install tesseract
-```
-
-**Ubuntu / Debian:**
-```bash
-sudo apt-get update
-sudo apt-get install -y tesseract-ocr tesseract-ocr-eng
-```
-
-**Windows:**
-1. Download the installer from: https://github.com/UB-Mannheim/tesseract/wiki
-2. Run the installer (note the install path, e.g., `C:\Program Files\Tesseract-OCR`)
-3. Add Tesseract to your system PATH, or set it in `config.py`:
-   ```python
-   TESSERACT_CMD = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-   ```
-
-**Verify installation:**
-```bash
-tesseract --version
-# Expected: tesseract 5.x.x (or 4.x.x)
-```
-
-### Step 3 — Create Virtual Environment
-
-```bash
 python3 -m venv venv
+source venv/bin/activate
 
-# Activate:
-source venv/bin/activate        # macOS / Linux
-# venv\Scripts\activate         # Windows (CMD)
-# venv\Scripts\Activate.ps1     # Windows (PowerShell)
-```
-
-### Step 4 — Upgrade pip & Install Python Dependencies
-
-```bash
 pip install --upgrade pip setuptools wheel
 pip install -r requirements.txt
 ```
 
-**If PyTorch fails to install** (common on some systems), install it separately:
-```bash
-# CPU-only (recommended for most users):
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+> **Apple Silicon note**: PyTorch ships native ARM wheels — `pip install -r requirements.txt` works directly. If you hit errors:
+> ```bash
+> pip install torch torchvision
+> ```
 
-# macOS Apple Silicon (M1/M2/M3/M4):
-pip install torch torchvision
-```
-
-**If Pillow fails** (Python 3.13+), install the latest version:
-```bash
-pip install Pillow --upgrade
-```
-
-### Step 5 — Verify All Requirements
-
-Run this quick check to ensure everything is installed:
-```bash
-python -c "
-import flask; print(f'Flask:          {flask.__version__}')
-import torch; print(f'PyTorch:        {torch.__version__}')
-import cv2;   print(f'OpenCV:         {cv2.__version__}')
-import PIL;   print(f'Pillow:         {PIL.__version__}')
-import pytesseract; print(f'pytesseract:    OK')
-print('All dependencies installed successfully!')
-"
-```
-
-### Step 6 — Run the Application
+#### 4. Run
 
 ```bash
 python run.py
 ```
 
-Open your browser at: **[http://localhost:5000](http://localhost:5000)**
+Open **http://localhost:5000** in your browser.
 
-> **Port conflict?** If port 5000 is in use (common on macOS where AirPlay uses 5000):
+> **⚠️ Port 5000 conflict** — macOS Monterey+ uses port 5000 for AirPlay Receiver (Control Center → AirDrop & Handoff). Fix:
 > ```bash
-> # Option 1: Kill the process on port 5000
-> lsof -ti:5000 | xargs kill -9
-> python run.py
->
-> # Option 2: Run on a different port
+> # Option A: Disable AirPlay Receiver in System Settings
+> # Option B: Use port 5001 instead
 > python -c "
 > from app import create_app
 > app = create_app()
@@ -437,17 +410,266 @@ Open your browser at: **[http://localhost:5000](http://localhost:5000)**
 > "
 > ```
 
-### Step 7 — Register & Test
+---
 
-1. Go to `http://localhost:5000` (or `5001`)
+### 🪟 Windows Installation (Windows 10 / 11)
+
+#### 1. Install Python
+
+1. Download Python 3.12 from [python.org/downloads](https://www.python.org/downloads/)
+2. **IMPORTANT**: Check ☑ **"Add Python to PATH"** during installation
+3. Verify in **Command Prompt** or **PowerShell**:
+   ```cmd
+   python --version
+   pip --version
+   ```
+
+#### 2. Install Tesseract OCR
+
+1. Download the Windows installer from:
+   **https://github.com/UB-Mannheim/tesseract/wiki**
+   (Download the `.exe` — typically `tesseract-ocr-w64-setup-5.x.x.exe`)
+2. Run the installer — **note the install path** (default: `C:\Program Files\Tesseract-OCR`)
+3. **Add Tesseract to your system PATH**:
+   - Open **Start** → search **"Environment Variables"** → click **"Edit the system environment variables"**
+   - Click **"Environment Variables…"**
+   - Under **System Variables**, select **Path** → click **Edit**
+   - Click **New** → paste: `C:\Program Files\Tesseract-OCR`
+   - Click **OK** on all dialogs
+4. **Restart** your Command Prompt / PowerShell
+5. Verify:
+   ```cmd
+   tesseract --version
+   ```
+
+> **Alternative**: If you don't want to modify PATH, set an environment variable:
+> ```cmd
+> set TESSERACT_CMD=C:\Program Files\Tesseract-OCR\tesseract.exe
+> ```
+> Or the app will auto-detect the default install path.
+
+#### 3. Install Git
+
+Download from [git-scm.com](https://git-scm.com/download/win) and install. Select **"Git from the command line"** during setup.
+
+#### 4. Clone & Set Up
+
+**Command Prompt:**
+```cmd
+git clone https://github.com/srivardhan-kondu/AI-Battery-.git
+cd AI-Battery-
+
+python -m venv venv
+venv\Scripts\activate
+
+pip install --upgrade pip setuptools wheel
+pip install -r requirements.txt
+```
+
+**PowerShell:**
+```powershell
+git clone https://github.com/srivardhan-kondu/AI-Battery-.git
+cd AI-Battery-
+
+python -m venv venv
+venv\Scripts\Activate.ps1
+
+pip install --upgrade pip setuptools wheel
+pip install -r requirements.txt
+```
+
+> **PowerShell execution policy error?** Run this first:
+> ```powershell
+> Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+> ```
+
+> **PyTorch install issue on Windows?** Install CPU-only build:
+> ```cmd
+> pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+> ```
+
+> **OpenCV `ImportError: DLL load failed`?** Install the Visual C++ Redistributable:
+> Download from [Microsoft Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe) and restart.
+
+#### 5. Run
+
+```cmd
+python run.py
+```
+
+Open **http://localhost:5000** in your browser.
+
+---
+
+### 🐧 Linux Installation (Ubuntu / Debian / Fedora / Arch)
+
+#### Ubuntu / Debian
+
+```bash
+# 1. Install Python, pip, venv, Tesseract, and OpenCV system deps
+sudo apt-get update
+sudo apt-get install -y python3 python3-pip python3-venv \
+  tesseract-ocr tesseract-ocr-eng \
+  libgl1-mesa-glx libglib2.0-0
+
+# 2. Verify
+python3 --version
+tesseract --version
+```
+
+#### Fedora / RHEL / CentOS
+
+```bash
+sudo dnf install -y python3 python3-pip python3-virtualenv \
+  tesseract tesseract-langpack-eng \
+  mesa-libGL glib2
+
+python3 --version
+tesseract --version
+```
+
+#### Arch Linux
+
+```bash
+sudo pacman -S python python-pip tesseract tesseract-data-eng
+```
+
+#### Clone & Set Up (all distros)
+
+```bash
+git clone https://github.com/srivardhan-kondu/AI-Battery-.git
+cd AI-Battery-
+
+python3 -m venv venv
+source venv/bin/activate
+
+pip install --upgrade pip setuptools wheel
+pip install -r requirements.txt
+```
+
+> **`libGL` / OpenCV error?** This is the most common Linux issue:
+> ```bash
+> # Ubuntu/Debian
+> sudo apt-get install -y libgl1-mesa-glx libglib2.0-0
+> # Or use headless OpenCV:
+> pip uninstall opencv-python && pip install opencv-python-headless
+> ```
+
+> **PyTorch CPU-only (recommended for servers without GPU):**
+> ```bash
+> pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+> ```
+
+#### Run
+
+```bash
+python run.py
+```
+
+Open **http://localhost:5000**.
+
+---
+
+### ✅ Post-Install Verification (All Platforms)
+
+Run this one-liner to confirm every dependency is correctly installed:
+
+```bash
+python -c "
+import flask; print(f'Flask:          {flask.__version__}')
+import torch; print(f'PyTorch:        {torch.__version__}')
+import cv2;   print(f'OpenCV:         {cv2.__version__}')
+import PIL;   print(f'Pillow:         {PIL.__version__}')
+import pytesseract; print(f'pytesseract:    OK')
+import numpy; print(f'NumPy:          {numpy.__version__}')
+import pandas; print(f'Pandas:         {pandas.__version__}')
+import sklearn; print(f'scikit-learn:   {sklearn.__version__}')
+print()
+print('All dependencies installed successfully!')
+"
+```
+
+Expected output:
+```
+Flask:          3.0.2
+PyTorch:        2.2.1
+OpenCV:         4.9.0
+Pillow:         10.2.0
+pytesseract:    OK
+NumPy:          1.26.4
+Pandas:         2.2.1
+scikit-learn:   1.4.1
+All dependencies installed successfully!
+```
+
+---
+
+### 📝 Register & First Test
+
+1. Open **http://localhost:5000** (or `:5001` on macOS if port 5000 is busy)
 2. Click **Register** and create an account:
-   - Email: any valid email (e.g., `test@batteryai.com`)
-   - Password: minimum 8 characters, with 1 uppercase, 1 lowercase, 1 digit (e.g., `Test@1234`)
+   - **Email**: any valid email (e.g., `test@batteryai.com`)
+   - **Password**: minimum 8 characters, with 1 uppercase, 1 lowercase, 1 digit (e.g., `Test@1234`)
 3. Upload a battery image (JPEG, PNG, or BMP, up to 16 MB)
-4. View the 3-stage analysis results
-5. Click **View Recovery Analysis** to see recyclable elements and recovery percentages
+4. View the 3-stage analysis results on the Dashboard
+5. Click **View Recovery Analysis** to see EDA — recoverable elements, hazard levels, and recovery percentages
+6. Click **⬇ Download Report** to export the results as **PDF** or **CSV**
 
-### All Python Requirements
+---
+
+### 🔧 Troubleshooting Guide
+
+<details>
+<summary><strong>Click to expand all common issues & fixes</strong></summary>
+
+#### Tesseract Issues
+
+| Problem | Platform | Solution |
+|---------|----------|----------|
+| `TesseractNotFoundError` | All | Ensure Tesseract is installed and on PATH. Run `tesseract --version` to verify. |
+| OCR returns all "Unknown" | All | Tesseract isn't at the expected path. Set `TESSERACT_CMD` env variable to your install path. |
+| `tesseract: command not found` | Linux | `sudo apt install tesseract-ocr` |
+| `'tesseract' is not recognized` | Windows | Add `C:\Program Files\Tesseract-OCR` to your system PATH (see Windows setup above). |
+
+#### Python / pip Issues
+
+| Problem | Platform | Solution |
+|---------|----------|----------|
+| `python: command not found` | macOS/Linux | Use `python3` instead of `python` |
+| `python3` not found | Windows | Reinstall Python with "Add to PATH" checked |
+| `pip install` hangs on PyTorch | All | Install CPU-only: `pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu` |
+| `ModuleNotFoundError: No module named 'cv2'` | All | `pip install opencv-python` |
+| Pillow build error on Python 3.13+ | All | `pip install Pillow --upgrade` |
+
+#### OpenCV Issues
+
+| Problem | Platform | Solution |
+|---------|----------|----------|
+| `ImportError: libGL.so.1` | Linux | `sudo apt install libgl1-mesa-glx` or use `pip install opencv-python-headless` |
+| `ImportError: DLL load failed` | Windows | Install [Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe) |
+| `ImportError: libgthread` | Linux | `sudo apt install libglib2.0-0` |
+
+#### Server Issues
+
+| Problem | Platform | Solution |
+|---------|----------|----------|
+| Port 5000 already in use | macOS | AirPlay Receiver uses 5000. Disable it or use port 5001 (see macOS section above). |
+| Port 5000 already in use | Any | `lsof -ti:5000 \| xargs kill -9` (macOS/Linux) or find/kill in Task Manager (Windows) |
+| `Address already in use` | Any | Wait 30 seconds (TIME_WAIT) or kill the old process |
+| CORS errors in browser | Any | Ensure `Flask-CORS` is installed: `pip install flask-cors` |
+
+#### PowerShell Issues (Windows)
+
+| Problem | Solution |
+|---------|----------|
+| `venv\Scripts\Activate.ps1 cannot be loaded` | `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned` |
+| `pip` not recognized after venv activation | Use `python -m pip install` instead |
+
+</details>
+
+---
+
+### 📦 All Python Requirements
 
 | Package | Version | Purpose |
 |---------|---------|---------|
@@ -460,7 +682,7 @@ Open your browser at: **[http://localhost:5000](http://localhost:5000)**
 | `opencv-python` | 4.9.0+ | Computer vision (Stages 1 & 2) |
 | `pytesseract` | 0.3.10 | Tesseract OCR binding (Stage 3) |
 | `torch` | 2.2.1+ | Deep learning framework |
-| `torchvision` | 0.17.1+ | Pre-trained models |
+| `torchvision` | 0.17.1+ | Pre-trained models & transforms |
 | `ultralytics` | 8.1.28+ | YOLO utilities |
 | `numpy` | 1.26.4+ | Numerical computing |
 | `pandas` | 2.2.1+ | Data handling |
@@ -468,19 +690,72 @@ Open your browser at: **[http://localhost:5000](http://localhost:5000)**
 | `matplotlib` | 3.8.3+ | Plotting (training) |
 | `seaborn` | 0.13.2+ | Statistical visualization |
 | `requests` | 2.31.0+ | HTTP client |
-| `python-dotenv` | 1.0.1 | Environment variables |
-| `Werkzeug` | 3.0.1+ | WSGI utilities |
+| `python-dotenv` | 1.0.1 | Environment variables from `.env` |
+| `Werkzeug` | 3.0.1+ | WSGI utilities (secure uploads) |
 | `SQLAlchemy` | 2.0.27+ | SQL toolkit |
-| `tqdm` | 4.66.2+ | Progress bars |
+| `tqdm` | 4.66.2+ | Progress bars (training) |
 
-### System Requirements (Non-Python)
+### System Dependencies (Non-Python)
 
-| Requirement | Purpose | Install Command |
-|-------------|---------|-----------------|
-| **Tesseract OCR 4+** | OCR text extraction | `brew install tesseract` (macOS) / `apt install tesseract-ocr` (Linux) |
-| **Python 3.9+** | Runtime | [python.org](https://python.org) |
-| **~500 MB disk** | Dependencies + model weights | — |
-| **4 GB RAM** | PyTorch inference | — |
+| Dependency | macOS | Windows | Ubuntu/Debian | Fedora |
+|-----------|-------|---------|---------------|--------|
+| **Python 3.9+** | `brew install python@3.12` | [python.org](https://python.org) | `sudo apt install python3` | `sudo dnf install python3` |
+| **Tesseract 4+** | `brew install tesseract` | [UB-Mannheim installer](https://github.com/UB-Mannheim/tesseract/wiki) | `sudo apt install tesseract-ocr` | `sudo dnf install tesseract` |
+| **Git** | `brew install git` | [git-scm.com](https://git-scm.com) | `sudo apt install git` | `sudo dnf install git` |
+| **libGL** (OpenCV) | ✅ Built-in | ✅ Built-in | `sudo apt install libgl1-mesa-glx` | `sudo dnf install mesa-libGL` |
+| **VC++ Runtime** | N/A | [Download](https://aka.ms/vs/17/release/vc_redist.x64.exe) | N/A | N/A |
+
+---
+
+### ⚙️ Environment Variables (Optional)
+
+The app works out of the box with defaults. Override any setting via environment variables:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SECRET_KEY` | `battery-recycling-super-secret-key-2024` | Flask session secret |
+| `JWT_SECRET_KEY` | `jwt-battery-secret-2024` | JWT signing key |
+| `DATABASE_URL` | `sqlite:///battery_recycling.db` | SQLAlchemy database URI |
+| `TESSERACT_CMD` | Auto-detected | Full path to Tesseract binary |
+| `DEBUG` | `True` | Enable Flask debug mode |
+
+Set via terminal:
+```bash
+# macOS / Linux
+export TESSERACT_CMD="/usr/local/bin/tesseract"
+export SECRET_KEY="your-production-secret"
+
+# Windows (CMD)
+set TESSERACT_CMD=C:\Program Files\Tesseract-OCR\tesseract.exe
+set SECRET_KEY=your-production-secret
+
+# Windows (PowerShell)
+$env:TESSERACT_CMD = "C:\Program Files\Tesseract-OCR\tesseract.exe"
+$env:SECRET_KEY = "your-production-secret"
+```
+
+Or create a `.env` file in the project root (loaded by `python-dotenv`):
+```env
+SECRET_KEY=your-production-secret
+JWT_SECRET_KEY=your-jwt-secret
+TESSERACT_CMD=/usr/local/bin/tesseract
+DEBUG=False
+```
+
+---
+
+### 🔄 Cross-Platform Compatibility Notes
+
+| Feature | macOS | Windows | Linux | Notes |
+|---------|-------|---------|-------|-------|
+| Tesseract detection | ✅ Auto | ✅ Auto | ✅ Auto | `config.py` checks `PATH`, then platform-specific paths |
+| SQLite database | ✅ | ✅ | ✅ | Path backslashes normalized for Windows |
+| File uploads | ✅ | ✅ | ✅ | `os.path.join()` everywhere, no hardcoded separators |
+| Port 5000 | ⚠️ AirPlay | ✅ | ✅ | Use port 5001 on macOS Monterey+ |
+| Python command | `python3` | `python` | `python3` | Some Linux distros only have `python3` |
+| Virtual env activation | `source venv/bin/activate` | `venv\Scripts\activate` | `source venv/bin/activate` | — |
+| OCR inference | ✅ | ✅ | ✅ | All 3 PSM modes work cross-platform |
+| PDF/CSV export | ✅ | ✅ | ✅ | Client-side generation (jsPDF) — no server deps |
 
 ---
 
@@ -844,7 +1119,8 @@ pip install -r requirements.txt
 - [ ] Add object detection head using the SLIBR YOLO labels for bounding box output
 - [ ] Support video stream input for conveyor belt real-time classification
 - [ ] Integrate weight/rating field to calculate total recoverable mass
-- [ ] Export EDA results as PDF report
+- [x] ~~Export EDA results as PDF report~~ ✅ Implemented — PDF & CSV download
+- [x] ~~Cross-platform compatibility~~ ✅ Mac, Windows, Linux all supported
 - [ ] Docker containerization
 - [ ] GPU inference support
 
